@@ -1,0 +1,21 @@
+
+To build on Linux:
+
+1) Download the project files from github.
+
+2) Edit the build.xml, jarbuild.xml, and javadoc.xml and make sure that the paths used therein are compatible for your system.
+
+3) Run the following commands:
+
+	> ant -f build.xml
+	> ant -f jarbuild.xml
+	> ant -f javadoc.xml
+
+The application should be named AsianFlashCard.jar.
+
+To run the application, either doubleclick it or run from the command line:
+
+	> java -jar AsianFlashCard.jar
+
+Have fun!
+
