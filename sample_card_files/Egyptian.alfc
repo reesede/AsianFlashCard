@@ -1,0 +1,15 @@
+﻿
+<FlashCardSet>
+<SideInformation>
+	<Side1Information title="Hieroglyph" font="Times New Roman" size="100"></Side1Information>
+	<Side2Information title="Phonetic" font="Times New Roman" size="50"></Side2Information>
+	<Side3Information title="English" font="Times New Roman" size="50"></Side3Information>
+</SideInformation>
+
+<FlashCard>
+	<Side1><IMG src="n35.png"/></Side1>
+	<Side2>n</Side2>
+	<Side3>water</Side3>
+</FlashCard>
+
+</FlashCardSet>

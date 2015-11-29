@@ -1,0 +1,89 @@
+﻿
+<FlashCardSet>
+<SideInformation>
+	<Side1Information title="Character" font="Times New Roman" size="100"></Side1Information>
+	<Side2Information title="Pinyin" font="Times New Roman" size="50"></Side2Information>
+	<Side3Information title="English" font="Times New Roman" size="50"></Side3Information>
+</SideInformation>
+
+<FlashCard>
+	<Side1>我</Side1>
+	<Side2>wo3</Side2>
+	<Side3>(pron.) I, me [Lesson 1]</Side3>
+</FlashCard>
+<FlashCard>
+	<Side1>你</Side1>
+	<Side2>ni3</Side2>
+	<Side3>(pron.) you [Lesson 1]</Side3>
+</FlashCard>
+<FlashCard>
+	<Side1>妳</Side1>
+	<Side2>ni3</Side2>
+	<Side3>(pron.) you (feminine) [Lesson 1]</Side3>
+</FlashCard>
+<FlashCard>
+	<Side1>是</Side1>
+	<Side2>shi4</Side2>
+	<Side3>(v.) is, are, am, to be [Lesson 1]<BR/><BR/>(interj.) right, yes [Lesson 1]</Side3>
+</FlashCard>
+<FlashCard>
+	<Side1>您</Side1>
+	<Side2>nin2</Side2>
+	<Side3>(pron.) you (formal) [Lesson 1]</Side3>
+</FlashCard>
+<FlashCard>
+	<Side1>他</Side1>
+	<Side2>ta1</Side2>
+	<Side3>(pron.) he, him, it [Lesson 1]</Side3>
+</FlashCard>
+<FlashCard>
+	<Side1>她</Side1>
+	<Side2>ta1</Side2>
+	<Side3>(pron.) she (feminine) [Lesson 1]</Side3>
+</FlashCard>
+<FlashCard>
+	<Side1>們 (Simp. 们)</Side1>
+	<Side2>men (neutral)</Side2>
+	<Side3>(particle.) (plural indicator) [Lesson 1]</Side3>
+</FlashCard>
+<FlashCard>
+	<Side1>好</Side1>
+	<Side2>hao3</Side2>
+	<Side3>(adj.) good [Lesson 1]<BR/><BR/>(adv.) very</Side3>
+</FlashCard>
+<FlashCard>
+	<Side1>沒 (Simp. 没)</Side1>
+	<Side2>mei2</Side2>
+	<Side3>(part.) not (used with 有 you3) [Lesson 1]</Side3>
+</FlashCard>
+<FlashCard>
+	<Side1>有</Side1>
+	<Side2>you3</Side2>
+	<Side3>(v.) to have [Lesson 1]</Side3>
+</FlashCard>
+<FlashCard>
+	<Side1>叫</Side1>
+	<Side2>jiao4</Side2>
+	<Side3>(v.) to be called, to shout [Lesson 1]</Side3>
+</FlashCard>
+<FlashCard>
+	<Side1>名子</Side1>
+	<Side2>ming2 zi</Side2>
+	<Side3>(n.) name [Lesson 1]</Side3>
+</FlashCard>
+<FlashCard>
+	<Side1>國 (Simp. 国)</Side1>
+	<Side2>guo2</Side2>
+	<Side3>(n.) country [Lesson 1]</Side3>
+</FlashCard>
+<FlashCard>
+	<Side1>的</Side1>
+	<Side2>de (neutral)</Side2>
+	<Side3>(particle) (possessive indicator) [Lesson 1]</Side3>
+</FlashCard>
+<FlashCard>
+	<Side1>朋友</Side1>
+	<Side2>peng2 you3</Side2>
+	<Side3>(n.) friend [Lesson 1]</Side3>
+</FlashCard>
+</FlashCardSet>

@@ -1,0 +1,60 @@
+
+2014-03-14
+v2.5
+David E. Reese
+Changelog started for program. Converted flash card files to display HTML text. Commit to CVS for v2.5.
+
+2014-03-18
+v3.0
+David E. Reese
+Commit to CVS for v3.0. No functional change with v2.5, but Windows and Linux testing is complete.
+
+2014-04-08
+v3.1
+David E. Reese
+Added change log display (bug 000036).
+
+2014-05-02
+v3.2
+David E. Reese
+Rationalized display of change log (bug 000038). Commit to CVS for v3.2.
+
+2014-06-28
+v3.3
+David E. Reese
+Added code to allow the user to specify the number of cards to use in a test (bug 000039).
+
+2014-07-06
+v3.4
+David E. Reese
+Added quick keys (bug 000037).
+
+2014-11-27
+v3.5
+David E. Reese
+Changed logic of quick keys to wait a given amount of time between recognizing multiple key events (bug 000042).
+
+2014-12-03
+v3.6
+David E. Reese
+Modified buttons so that they can not get focus. This fixed issues with the quick keys not working when one buttons was focused (bug 000044).
+
+2015-02-19
+v4.0
+David E. Reese
+Went to version numbering scheme where unstable releases have odd point release numbers and stable releases have even point release numbers.
+
+Modified menu bar functionality and help, changelog, and about dialogs so that the menu item for these dialogs is disabled when the window opens and enabled when the window closes (bug 000045).
+
+Modified help, changelog, about, and statistics dialogs so that they are "free" from the main frame (bug 000046).
+
+Added functionality for scratchpad (bug 000043).
+
+2015-11-28
+v4.1
+David E. Reese
+Added GPL license information to all source files (bug 000047).
+
+Fixed resizing problems with help and about dialogs by removing GridBagLayouts and going with null layouts and setting the boundaries of the elements (bug 000048).
+
+Surrounded calls to "long" activities with calls to SwingUtilities.invokeLater () (bug 000049).
