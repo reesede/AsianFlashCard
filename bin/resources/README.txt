@@ -20,7 +20,7 @@ This is the README.txt file for the AsianFlashCard program.
 ======================
 
 AsianFlashCard.jar
-Version 4.1
+Version 5.0 (unstable)
 Copyright 2012-2015, David E. Reese
 
 3. COPYRIGHT

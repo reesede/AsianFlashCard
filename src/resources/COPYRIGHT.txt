@@ -1,4 +1,4 @@
-AsianFlashCard, v4.1 (stable)
+AsianFlashCard, v5.0 (unstable)
 
 Copyright 2012-2015, David E. Reese
 
