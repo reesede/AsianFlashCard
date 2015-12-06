@@ -100,6 +100,9 @@ import javax.swing.JOptionPane;
 //	20140504	DEReese					Added inTest. Modified initializeEmptyFlash () to initialize it.
 //										Added getInTest (). Added setInTest () (bug 000039).
 //	20151127	DEReese					Added GPL information (bug 000047).
+//	20151206	DEReese					Added code in appendCardSet () to recount the number of cards when
+//										new card sets are appended and the test has not started. Also marked
+//										all cards added in the append as being in the test (bug 000050).
 //
 
 public class InternalFlashCard {
@@ -567,12 +570,27 @@ public class InternalFlashCard {
 			}
 			
 			tempCardList = theReader.getFlashCardSet(false, theFileName);
+			
+			// If there is a test, mark the new cards as in the test.
+			
+			if (AsianFlash.theTest != null)
+			{
+				InternalFlashCard tCard = tempCardList;
+				while (tCard != null)
+				{
+					tCard.setInTest(true);
+					tCard = tCard.getNextCard();
+				}
+			}
+			
 			if (tempCardList != null)
 			{
 				if (AsianFlash.theFlashCardList == null)
 					AsianFlash.theFlashCardList = tempCardList;
 				else
+				{
 					AsianFlash.theFlashCardList.addNewCardToList(tempCardList);
+				}
 			}
 		}
 		
@@ -700,7 +718,27 @@ public class InternalFlashCard {
 		newFileList = internalFileList.toArray(new File[0]);
 		addCardSetFiles (newFileList);
 		if (AsianFlash.theTest != null)
+		{
 			AsianFlash.theTest.recalculateCounts();
+		}
+		else
+		{
+			if (AsianFlash.theFlashCardList != null)
+			{
+				int					theCount = 0;
+				InternalFlashCard	tempCard = AsianFlash.theFlashCardList;
+				
+				while (tempCard != null)
+				{
+					theCount++;
+					tempCard = tempCard.getNextCard();
+				}
+				if (AsianFlash.leftScorePanel != null)
+					AsianFlash.leftScorePanel.setScores(theCount, 0, 0);
+				if (AsianFlash.rightScorePanel != null)
+					AsianFlash.rightScorePanel.setScores(theCount, 0, 0);
+			}
+		}
 	}
 	
 	/**

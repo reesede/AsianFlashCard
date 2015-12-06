@@ -58,3 +58,10 @@ Added GPL license information to all source files (bug 000047).
 Fixed resizing problems with help and about dialogs by removing GridBagLayouts and going with null layouts and setting the boundaries of the elements (bug 000048).
 
 Surrounded calls to "long" activities with calls to SwingUtilities.invokeLater () (bug 000049).
+
+xxxx-xx-xx (will add date when ready to merge)
+v5.0
+David E. Reese
+Fork new branch for v5.0 build, integration, and test (bug 000052).
+
+Fixed "Append" command not working (bug 000050).

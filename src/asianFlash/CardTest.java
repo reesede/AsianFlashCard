@@ -125,6 +125,8 @@ import javax.swing.*;
 //	20140704	DEReese					Added code to enable quick keys when the test is ready for
 //										execution (bug 000037).
 //	20151127	DEReese					Added GPL information (bug 000047).
+//	20151206	DEReese					Add recalculation of number of cards in the test in recalculateCounts ()
+//										(bug 000050).
 //
 
 
@@ -1535,6 +1537,7 @@ public class CardTest
 		leftCorrectCount = 0;
 		rightCorrectCount = 0;
 		cardViewedCount = 0;		
+		numCardsInTest  = 0;
 		
 		while (tempCard != null)
 		{
@@ -1546,6 +1549,11 @@ public class CardTest
 			
 			if (tempCard.getCardViewed() == true)
 				cardViewedCount++;
+			
+			// Check if the card is in the test.
+			
+			if (tempCard.getInTest())
+				numCardsInTest++;
 			
 			// If the left side has been viewed, update the count.
 			
@@ -1641,6 +1649,7 @@ public class CardTest
 		
 		while (temp != null)
 		{
+			System.out.println ("     count = " + count);
 			temp.setCardNumber(count);
 			count++;
 			temp = temp.getNextCard();

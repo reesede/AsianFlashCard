@@ -102,6 +102,7 @@ import javax.swing.filechooser.*;
 //	20151127	DEReese				Added GPL information (bug 000047).
 //	20151128	DEReese				Surrounded calls for long actions with SwingUtilities.invokeLater () calls
 //									(bug 000049).
+//	20151206	DEReese				Fixed misspelling in comment (no change to functionality).
 //
 
 public class MainMenuBarPanel extends JPanel implements ActionListener
@@ -593,11 +594,11 @@ public class MainMenuBarPanel extends JPanel implements ActionListener
 			showStatsItem.setEnabled(true);
 		}
 		
-		// Call the routine to load a new flash card set. If it is successfull, the theFlashCardList
+		// Call the routine to load a new flash card set. If it is successful, the theFlashCardList
 		// global variable will be non-null. If not, theFlashCardList will be null.
 		
 		final File tFileList [] = theFileList;
-		
+
 		SwingUtilities.invokeLater(new Runnable ()
 		{
 			public void run ()
