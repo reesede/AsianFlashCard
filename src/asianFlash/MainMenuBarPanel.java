@@ -103,6 +103,9 @@ import javax.swing.filechooser.*;
 //	20151128	DEReese				Surrounded calls for long actions with SwingUtilities.invokeLater () calls
 //									(bug 000049).
 //	20151206	DEReese				Fixed misspelling in comment (no change to functionality).
+//	20151208	DEReese				Added editCardSetItem. Added doEditCardSetItem (). Added code in 
+//									actionPerformed () to handle editCardSetItem. Added enableEditCardSetItem ()
+//									and disableEditCardSetItem () (bug 000051).
 //
 
 public class MainMenuBarPanel extends JPanel implements ActionListener
@@ -175,6 +178,11 @@ public class MainMenuBarPanel extends JPanel implements ActionListener
 	 * Show Scratchpad menu item.
 	 */
 	private JMenuItem	scratchpadItem;
+	
+	/**
+	 * Edit Card Set menu item.
+	 */
+	private JMenuItem	editCardSetItem;
 	
 	/**
 	 * Quit item contained in File menu.
@@ -300,7 +308,12 @@ public class MainMenuBarPanel extends JPanel implements ActionListener
 		scratchpadItem.addActionListener(this);
 		scratchpadItem.setEnabled(true);
 		
+		editCardSetItem = new JMenuItem ("Open Card Set Editor");
+		editCardSetItem.addActionListener(this);
+		editCardSetItem.setEnabled(true);
+
 		toolsMenu.add(scratchpadItem);
+		toolsMenu.add(editCardSetItem);
 		
 		theMenuBar.add(toolsMenu);
 		
@@ -393,6 +406,11 @@ public class MainMenuBarPanel extends JPanel implements ActionListener
 		if (source == scratchpadItem)
 		{
 			doScratchPadItem (e);
+		}
+		
+		if (source == editCardSetItem)
+		{
+			doEditCardSetItem (e);
 		}
 		
 		// Process "Help" menu item by displaying a HelpDialog object.
@@ -838,6 +856,16 @@ public class MainMenuBarPanel extends JPanel implements ActionListener
 	}
 	
 	/**
+	 * This method opens the card editor dialog.
+	 * @param e	Event that triggered the call.
+	 */
+	private void doEditCardSetItem (ActionEvent e)
+	{
+		AsianFlash.theCardSetEditor = new CardSetEditorDialog ();
+		disableEditCardSetItem ();
+	}
+	
+	/**
 	 * This operation enables the Statistics menu item.
 	 */
 	public void enableShowStatsItem()
@@ -883,6 +911,22 @@ public class MainMenuBarPanel extends JPanel implements ActionListener
 	public void disableScratchPadItem()
 	{
 		scratchpadItem.setEnabled(false);
+	}
+	
+	/**
+	 * This method enables the Show Card Editor menu ite.
+	 */
+	public void enableEditCardSetItem ()
+	{
+		editCardSetItem.setEnabled(true);
+	}
+	
+	/**
+	 * This method disables the Show Card Editor menu ite.
+	 */
+	public void disableEditCardSetItem ()
+	{
+		editCardSetItem.setEnabled(false);
 	}
 	
 	/**

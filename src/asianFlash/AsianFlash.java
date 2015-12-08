@@ -54,6 +54,7 @@ import javax.swing.SwingUtilities;
 //	20151127	DEReese				Added GPL information (bug 000047).
 //	20151129	DEReese				Surrounded call to AsianFlashMainFrame () constructor with a call to
 //									SwingUtilities.invokeLater () (bug 000049).
+//	20151208	DEReese				Added theCardSetEditor (bug 000051).
 //
 public class AsianFlash {
 	
@@ -96,6 +97,11 @@ public class AsianFlash {
 	 * Flash card set being tested.
 	 */
 	public static InternalFlashCard	theFlashCardList;
+	
+	/**
+	 * Card set editor window being used.
+	 */
+	public static CardSetEditorDialog theCardSetEditor = null;
 	
 	/**
 	 * Title of side 1 of flash cards.
