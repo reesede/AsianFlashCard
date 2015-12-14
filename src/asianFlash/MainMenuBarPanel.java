@@ -6,6 +6,7 @@ package asianFlash;
 import java.awt.*;
 import java.awt.event.*;
 import java.io.*;
+
 import javax.swing.*;
 import javax.swing.border.LineBorder;
 import javax.swing.filechooser.*;
@@ -106,6 +107,9 @@ import javax.swing.filechooser.*;
 //	20151208	DEReese				Added editCardSetItem. Added doEditCardSetItem (). Added code in 
 //									actionPerformed () to handle editCardSetItem. Added enableEditCardSetItem ()
 //									and disableEditCardSetItem () (bug 000051).
+//	20151211	DEReese				Put call to constructor for CardSetEditorDialog in SwingUtilities.invokeLater ()
+//									and changed the cursor to a rotating cursor, since it can take time for the
+//									CardSetEditorDialog to find the system font families (bug 000051).
 //
 
 public class MainMenuBarPanel extends JPanel implements ActionListener
@@ -861,7 +865,17 @@ public class MainMenuBarPanel extends JPanel implements ActionListener
 	 */
 	private void doEditCardSetItem (ActionEvent e)
 	{
-		AsianFlash.theCardSetEditor = new CardSetEditorDialog ();
+		// Set up a revolving cursor.
+		
+		AsianFlash.mainFrame.setCursor(Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR));
+	
+		SwingUtilities.invokeLater(new Runnable ()
+		{
+			public void run ()
+			{
+				AsianFlash.theCardSetEditor = new CardSetEditorDialog ();
+			}
+		});
 		disableEditCardSetItem ();
 	}
 	

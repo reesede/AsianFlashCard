@@ -55,6 +55,9 @@ import javax.swing.SwingUtilities;
 //	20151129	DEReese				Surrounded call to AsianFlashMainFrame () constructor with a call to
 //									SwingUtilities.invokeLater () (bug 000049).
 //	20151208	DEReese				Added theCardSetEditor (bug 000051).
+//	20151211	DEReese				Change default font sizes to 48, based on font size availability (bug 000051).
+//	20151214	DEReese				Spawned a thread to determine the available fonts. This can take a long
+//									time, so it is run in the background (bug 000051).
 //
 public class AsianFlash {
 	
@@ -186,17 +189,17 @@ public class AsianFlash {
 	/**
 	 * Default size for font used for side 1.
 	 */
-	public static final int	defaultSide1Size = 50;
+	public static final int	defaultSide1Size = 48;
 	
 	/**
 	 * Default size for font used for side 2.
 	 */
-	public static final int	defaultSide2Size = 50;
+	public static final int	defaultSide2Size = 48;
 	
 	/**
 	 * Default size for font used for side 3.
 	 */
-	public static final int	defaultSide3Size = 50;
+	public static final int	defaultSide3Size = 48;
 
 	/**
 	 * Structure containing user parameters.
@@ -252,6 +255,19 @@ public class AsianFlash {
 				mainFrame = new AsianFlashMainFrame ("AsianFlash");				
 			}
 		});
+		
+		// Start a thread to determine the system fonts. This can take a long time, so it is run in the
+		// background at low priority.
+		
+		Thread	fontThread = new Thread ()
+		{
+				public void run ()
+				{
+					CardSetEditorDialog.determineFontFamilyNames();
+				}
+		};
+		fontThread.setPriority(Thread.MIN_PRIORITY);
+		fontThread.start();
 	}
 
 }
