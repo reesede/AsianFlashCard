@@ -12,13 +12,17 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.WindowEvent;
 import java.awt.event.WindowListener;
+import java.util.ArrayList;
 
+import javax.swing.JButton;
 import javax.swing.JFrame;
 import javax.swing.JMenu;
 import javax.swing.JMenuBar;
 import javax.swing.JMenuItem;
+import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
+import javax.swing.JTextField;
 
 /**
  * This class contains the dialog which allows the user to edit card sets.
@@ -78,6 +82,31 @@ public class CardSetEditorDialog extends JFrame implements ActionListener, Windo
 	private static final Rectangle mainMenuBarBounds = new Rectangle (0, 0, dialogBounds.width, 15);
 	
 	/**
+	 * Boundary of previous card button.
+	 */
+	private static final Rectangle previousCardButtonBounds = new Rectangle (5, 80, 120, 15);
+	
+	/**
+	 * Boundary for display for current number.
+	 */
+	private static final Rectangle cardNumberTextFieldBounds = new Rectangle (130, 80, 120, 15);
+	
+	/**
+	 * Boundary of next card button.
+	 */
+	private static final Rectangle nextCardButtonBounds = new Rectangle (255, 80, 120, 15);
+	
+	/**
+	 * Boundary of create card button.
+	 */
+	private static final Rectangle createCardButtonBounds = new Rectangle (400, 80, 120, 15);
+	
+	/**
+	 * Boundary of delete card button.
+	 */
+	private static final Rectangle deleteCardButtonBounds = new Rectangle (525, 80, 120, 15);
+	
+	/**
 	 * Main menu bar.
 	 */
 	private JMenuBar mainMenuBar;
@@ -131,6 +160,31 @@ public class CardSetEditorDialog extends JFrame implements ActionListener, Windo
 	 * Card Set Editor Help Item.
 	 */
 	private JMenuItem editorHelpItem;
+	
+	/**
+	 * Button to move to previous card.
+	 */
+	private JButton previousCardButton;
+	
+	/**
+	 * Button to move to next card;
+	 */
+	private JButton nextCardButton;
+	
+	/**
+	 * Button to create a new card.
+	 */
+	private JButton createCardButton;
+	
+	/**
+	 * Button to delete a card.
+	 */
+	private JButton deleteCardButton;
+	
+	/**
+	 * Text field containing the card number.
+	 */
+	private JTextField cardNumberTextField;
 	
 	/**
 	 * Array of card sides.
@@ -196,6 +250,26 @@ public class CardSetEditorDialog extends JFrame implements ActionListener, Windo
 	 * Indication that initialization is done.
 	 */
 	private boolean initDone = false;
+	
+	/**
+	 * Flag indicating that the card set has changes that have not been saved.
+	 */
+	private boolean dirtyFlag;
+	
+	/**
+	 * Number of cards in the card set being edited.
+	 */
+	private int cardsInSet;
+	
+	/**
+	 * Number of card being edited.
+	 */
+	private int cardBeingEdited;
+	
+	/**
+	 * List of cards being edited.
+	 */
+	private ArrayList<CardInfo>	theCardList;
 		
 	/**
 	 * Default constructor, which creates an empty dialog.
@@ -206,6 +280,7 @@ public class CardSetEditorDialog extends JFrame implements ActionListener, Windo
 		
 		createEmptyDialog ();
 		initDone = true;
+		createEmptyCard(1);
 	}
 	
 	private void createEmptyDialog ()
@@ -300,6 +375,46 @@ public class CardSetEditorDialog extends JFrame implements ActionListener, Windo
 		quitItem.setEnabled(true);
 		editorHelpItem.setEnabled(true);
 		
+		// Set up the previous card button.
+		
+		previousCardButton = new JButton ("< Prev. Card");
+		previousCardButton.setBounds(previousCardButtonBounds);
+		previousCardButton.addActionListener(this);
+		previousCardButton.setEnabled(false);
+		mainPanel.add(previousCardButton);
+		
+		// Set up the display of the current card.
+		
+		cardNumberTextField = new JTextField ();
+		cardNumberTextField.setBounds(cardNumberTextFieldBounds);
+		cardNumberTextField.setEditable(false);
+		cardNumberTextField.setHorizontalAlignment(JTextField.CENTER);
+		mainPanel.add(cardNumberTextField);
+		
+		// Set up the next card button.
+		
+		nextCardButton = new JButton ("Next Card");
+		nextCardButton.setBounds(nextCardButtonBounds);
+		nextCardButton.addActionListener(this);
+		nextCardButton.setEnabled(false);
+		mainPanel.add(nextCardButton);
+		
+		// Set up the create card button.
+		
+		createCardButton = new JButton ("New Card");
+		createCardButton.setBounds(createCardButtonBounds);
+		createCardButton.addActionListener(this);
+		createCardButton.setEnabled(true);
+		mainPanel.add(createCardButton);
+		
+		// Set up the delete card button.
+		
+		deleteCardButton = new JButton ("Delete Card");
+		deleteCardButton.setBounds(deleteCardButtonBounds);
+		deleteCardButton.addActionListener(this);
+		deleteCardButton.setEnabled(false);
+		mainPanel.add(deleteCardButton);
+		
 		// Add the editor panels for the three sides of the card.
 		
 		cardSidePanelArray = new CardEditorCardSidePanel [3];
@@ -334,6 +449,13 @@ public class CardSetEditorDialog extends JFrame implements ActionListener, Windo
 		revalidate ();
 		repaint ();
 		setVisible(true);
+		
+		// Initialize variables indicating the status of the card set.
+		
+		this.dirtyFlag = false;
+		this.cardBeingEdited = 0;
+		this.cardsInSet = 0;
+		this.theCardList = null;
 		
 		// Set up a normal cursor.
 		
@@ -517,8 +639,171 @@ public class CardSetEditorDialog extends JFrame implements ActionListener, Windo
 		{
 			fontFamiliesOK = Boolean.TRUE;
 		}
+	}
+	
+	/**
+	 * This method adjusts the status of controls (buttons, menu items, etc.) based on the state of
+	 * the cardset being edited.
+	 */
+	private void adjustControls ()
+	{
+		if (dirtyFlag)
+			saveCardSetItem.setEnabled(true);
+		else
+			saveCardSetItem.setEnabled(false);
+		saveCardSetAsItem.setEnabled (true);
 		
-
+		if (cardsInSet > 1)
+			deleteCardButton.setEnabled(true);
+		else
+			deleteCardButton.setEnabled(false);
+		
+		if (cardBeingEdited < cardsInSet)
+			nextCardButton.setEnabled(true);
+		else
+			nextCardButton.setEnabled(false);
+		
+		if (cardBeingEdited > 1)
+			previousCardButton.setEnabled(true);
+		else
+			previousCardButton.setEnabled(false);
+	}
+	
+	/**
+	 * This method creates an empty card and displays it in the card panels.
+	 * @param	theCardNum	Number of card being created.
+	 * @throws	Error	Thrown if theCardNum < 1.
+	 */
+	private void createEmptyCard (int theCardNum) throws Error
+	{
+		// Verify that the card number is correct.
+		
+		if (theCardNum < 1)
+			throw new Error ("CardSetEditorDialog.createEmptyCard () detected theCardNum (" + theCardNum + ") < 1.");
+		
+		// If the card set is null, create it. However, if this is a card other than the first, it should
+		// already have been created, so throw an exception.
+		
+		if (theCardList == null)
+		{
+			if (theCardNum == 1)
+				theCardList = new ArrayList<CardInfo> ();
+			else
+				throw new Error ("CardSetEditorDialog.createEmptyCard () detected theCardList == null and theCardNum (" + theCardNum + ") > 1.");
+		}
+		
+		// If the new card is not at the end of the card list, throw an exception.
+		
+		if (theCardNum <= theCardList.size())
+			throw new Error ("CardSetEditorDialog.createEmptyCard () detected theCardNum (" + theCardNum + ") <= theCardList.size (" + theCardList.size() + ").");
+		
+		// Create a new card.
+		
+		CardInfo tCard = new CardInfo (theCardNum, "", "", "");
+		theCardList.add(tCard);
+		
+		// Display the card sides as blank.
+		
+		cardSidePanelArray[0].setCardSideDoc(tCard.getCardSide1Doc());
+		cardSidePanelArray[1].setCardSideDoc(tCard.getCardSide2Doc());
+		cardSidePanelArray[2].setCardSideDoc(tCard.getCardSide3Doc());
+		
+		// Update the number of cards in the list and set the new card to the one being edited.
+		
+		cardsInSet++;
+		setCurrentCardDisplay (theCardNum);
+		
+		// Don't mark the card set as dirty if this was the first, empty card.
+		
+		if (theCardNum > 1)
+			dirtyFlag = true;
+		
+		adjustControls ();
+	}
+	
+	/**
+	 * This method sets the display of the current and maximum number of cards in set.
+	 * @param theNum	The number of the current card.
+	 * @throws Error	Thrown if theNum < 1 or theNum > number of cards in set.
+	 */
+	private void setCurrentCardDisplay (int theNum) throws Error
+	{
+		if ((theNum < 1) || (theNum > cardsInSet))
+			throw new Error ("CardSetEditorDialog.setCurrentCardDisplay () detected theNum (" + theNum + ") < 1 or > cardsInSet (" + cardsInSet + ").");
+		cardBeingEdited = theNum;
+		cardNumberTextField.setText("Card # " + theNum + " of " + cardsInSet);
+		cardSidePanelArray[0].setCardSideDoc(theCardList.get(theNum - 1).getCardSide1Doc());
+		cardSidePanelArray[1].setCardSideDoc(theCardList.get(theNum - 1).getCardSide2Doc());
+		cardSidePanelArray[2].setCardSideDoc(theCardList.get(theNum - 1).getCardSide3Doc());
+		cardNumberTextField.repaint();
+	}
+	
+	/**
+	 * This method performs the activities required to create a new card.
+	 */
+	private void doCreateCardButton ()
+	{
+		createEmptyCard (cardsInSet + 1);
+		dirtyFlag = true;
+	}
+	
+	/**
+	 * This method performs the activities required to delete a card.
+	 * @throws	Error	Thrown if an attempt is made to delete the only card (the button should be disabled when only 1 card exists in the set).
+	 */
+	private void doDeleteCardButton () throws Error
+	{
+		// Throw an error if an attempt is made to delete the only card in the set.
+		
+		if (cardsInSet == 1)
+			throw new Error ("CardSetEditorDialog.doDeleteCardButton () detected attempt to delete last card in set.");
+		
+		// Confirm the deletion.
+		
+		int deleteConfirmResponse = JOptionPane.showConfirmDialog(null, "Are you sure you want to delete"
+				+ " card number " + cardBeingEdited + "?", "Delete card number " + cardBeingEdited,
+				JOptionPane.YES_NO_OPTION, JOptionPane.QUESTION_MESSAGE);
+		if (deleteConfirmResponse == JOptionPane.YES_OPTION)
+		{
+			// If there are no cards behind this one, just delete the card and set the card being 
+			// edited to the new last card. Otherwise, set the new card being edited to the next
+			// card and adjust the card numbers of that and all following cards.
+			
+			if (cardBeingEdited == cardsInSet)
+			{
+				cardsInSet--;
+				theCardList.remove(theCardList.size() - 1);
+				setCurrentCardDisplay (cardBeingEdited - 1);
+			}
+			else
+			{
+				int tCardNum = cardBeingEdited;
+				theCardList.remove(tCardNum - 1);
+				for (int i = cardBeingEdited; i < theCardList.size(); i++)
+				{
+					CardInfo tCard = theCardList.get(i);
+					tCard.setTheCardNumber(tCard.getTheCardNumber() - 1);
+				}
+				cardsInSet--;
+				setCurrentCardDisplay (cardBeingEdited);
+			}
+			dirtyFlag = true;
+			adjustControls ();
+		}
+	}
+	
+	private void doNextCardButton ()
+	{
+		cardBeingEdited++;
+		setCurrentCardDisplay (cardBeingEdited);
+		adjustControls ();
+	}
+	
+	private void doPreviousCardButton ()
+	{
+		cardBeingEdited--;
+		setCurrentCardDisplay (cardBeingEdited);			
+		adjustControls ();
 	}
 	
 	/* (non-Javadoc)
@@ -531,6 +816,36 @@ public class CardSetEditorDialog extends JFrame implements ActionListener, Windo
 
 		if (!initDone)
 			return;
+		
+		Object source = e.getSource();
+		
+		// Handle the create card button.
+		
+		if (source == createCardButton)
+		{
+			doCreateCardButton ();
+		}
+		
+		// handle the next card button.
+		
+		if (source == nextCardButton)
+		{
+			doNextCardButton ();
+		}
+		
+		// Handle the previous card button.
+		
+		if (source == previousCardButton)
+		{
+			doPreviousCardButton ();
+		}
+		
+		// Handle the delete card button.
+		
+		if (source == deleteCardButton)
+		{
+			doDeleteCardButton ();
+		}
 	}
 
 	/* (non-Javadoc)

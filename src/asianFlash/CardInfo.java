@@ -7,6 +7,11 @@
  */
 package asianFlash;
 
+import javax.swing.text.DefaultStyledDocument;
+import javax.swing.text.SimpleAttributeSet;
+import javax.swing.text.StyleConstants;
+import javax.swing.text.StyledDocument;
+
 //Copyright 2014-2015 David E. Reese
 //
 //This file is part of AsianFlashCard.
@@ -32,19 +37,19 @@ package asianFlash;
 public class CardInfo 
 {
 	/**
-	 * Side 1 text for the card.
+	 * Document for side 1 of the card.
 	 */
-	private String cardSide1Text;
+	private StyledDocument cardSide1Doc;
 	
 	/**
-	 * Side 2 text for the card.
+	 * Document for side 2 of the card.
 	 */
-	private String cardSide2Text;
+	private StyledDocument cardSide2Doc;
 	
 	/**
-	 * Side 3 text for the card.
+	 * Document for side 3 of the card.
 	 */
-	private String cardSide3Text;
+	private StyledDocument cardSide3Doc;
 	
 	/**
 	 * Number of the card.
@@ -53,12 +58,36 @@ public class CardInfo
 	
 	/**
 	 * Default constructor.
+	 * @throws Error	Thrown if bad location error was detected.
 	 */
-	public CardInfo ()
+	public CardInfo () throws Error
 	{
-		cardSide1Text = new String ("");
-		cardSide2Text = new String ("");
-		cardSide3Text = new String ("");
+		// Create new default style documents for each side of the card.
+		
+		cardSide1Doc = new DefaultStyledDocument ();
+		cardSide2Doc = new DefaultStyledDocument ();
+		cardSide3Doc = new DefaultStyledDocument ();
+		
+		// Set the style of the card to indicate that text should be centered.
+		
+		SimpleAttributeSet center = new SimpleAttributeSet ();
+		StyleConstants.setAlignment(center, StyleConstants.ALIGN_CENTER);
+		cardSide1Doc.setParagraphAttributes(0, 0, center, false);
+		cardSide2Doc.setParagraphAttributes(0, 0, center, false);
+		cardSide3Doc.setParagraphAttributes(0, 0, center, false);
+
+		// Assign the text to the sides of the card.
+		
+		try 
+		{
+			cardSide1Doc.insertString(0, "", null);
+			cardSide2Doc.insertString(0, "", null);
+			cardSide3Doc.insertString(0, "", null);
+		} 
+		catch (Exception e) 
+		{
+			throw new Error ("CardInfo.CardInfo () detected bad location.");
+		}
 		theCardNumber = 0;
 	}
 	
@@ -68,55 +97,250 @@ public class CardInfo
 	 * @param side1String	String for side 1 of the card.
 	 * @param side2String	String for side 2 of the card.
 	 * @param side3String	String for side 3 of the card.
-	 * @throws Error		Thrown if newCardNumber < 1.
+	 * @throws Error		Thrown if newCardNumber < 1 or if bad location error was detected.
 	 */
 	public CardInfo (int newCardNumber, String side1String, String side2String, String side3String) throws Error
 	{
 		if (newCardNumber < 1)
 			throw new Error ("CardInfo.CardInfo () detected newCardNumber (" + newCardNumber + ") is < 1");
 		theCardNumber = newCardNumber;
-		cardSide1Text = side1String;
-		cardSide2Text = side2String;
-		cardSide3Text = side3String;
-	}
+		
+		// Create new default styled documents for each side of the card.
+		
+		cardSide1Doc = new DefaultStyledDocument ();
+		cardSide2Doc = new DefaultStyledDocument ();
+		cardSide3Doc = new DefaultStyledDocument ();
+		
+		// Set the style of the card to indicate that text should be centered.
+		
+		SimpleAttributeSet center = new SimpleAttributeSet ();
+		StyleConstants.setAlignment(center, StyleConstants.ALIGN_CENTER);
+		cardSide1Doc.setParagraphAttributes(0, 0, center, false);
+		cardSide2Doc.setParagraphAttributes(0, 0, center, false);
+		cardSide3Doc.setParagraphAttributes(0, 0, center, false);
+
+		// Assign the text to the sides of the card.
+		
+		try 
+		{
+			cardSide1Doc.insertString(0, side1String, null);
+			cardSide2Doc.insertString(0, side2String, null);
+			cardSide3Doc.insertString(0, side3String, null);
+		} 
+		catch (Exception e) 
+		{
+			throw new Error ("CardInfo.CardInfo () detected bad location.");
+		}
+}
 	
-	public void setCardSide1Text (String theString)
+	/**
+	 * This method sets the text in side 1 of the card. Note that it overwrites any existing text.
+	 * @param theString	String containing text to be put in the card side.
+	 * @throws Error Thrown if a bad location was detected.
+	 */
+	public void setCardSide1Text (String theString) throws Error
 	{
-		cardSide1Text = theString;
+		String tString = theString;
+		if (tString == null)
+			tString = "";
+		
+		try
+		{
+			cardSide1Doc.remove(0, cardSide1Doc.getLength());
+			cardSide1Doc.insertString(0, theString, null);
+		}
+		catch (Exception e)
+		{
+			throw new Error ("CardInfo.setCardSide1Text () detected bad location.");
+		}
 	}
 	
-	public String getCardSide1Text ()
+	/**
+	 * This method returns a string containing the text in card side 1.
+	 * @return		String containing text.
+	 * @throws Error	Thrown if a bad location was detected.
+	 */
+	public String getCardSide1Text () throws Error
 	{
-		return cardSide1Text;
+		String tString = null;
+		if (cardSide1Doc == null)
+			tString = "";
+		else
+		{
+			try
+			{
+				tString = cardSide1Doc.getText(0, cardSide1Doc.getLength());
+			}
+			catch (Exception e)
+			{
+				throw new Error ("CardInfo.getCardSide1Text () detected bad location.");
+			}
+		}
+		return tString;
 	}
 	
-	public void setCardSide2Text (String theString)
+	/**
+	 * This method sets the text in side 2 of the card. Note that it overwrites any existing text.
+	 * @param theString	String containing text to be put in the card side.
+	 * @throws Error Thrown if a bad location was detected.
+	 */
+	public void setCardSide2Text (String theString) throws Error
 	{
-		cardSide2Text = theString;
+		String tString = theString;
+		if (tString == null)
+			tString = "";
+		
+		try
+		{
+			cardSide2Doc.remove(0, cardSide2Doc.getLength());
+			cardSide2Doc.insertString(0, theString, null);
+		}
+		catch (Exception e)
+		{
+			throw new Error ("CardInfo.setCardSide2Text () detected bad location.");
+		}
 	}
 	
-	public String getCardSide2Text ()
+	/**
+	 * This method returns a string containing the text in card side 2.
+	 * @return		String containing text.
+	 * @throws Error	Thrown if a bad location was detected.
+	 */
+	public String getCardSide2Text () throws Error
 	{
-		return cardSide2Text;
+		String tString = null;
+		if (cardSide2Doc == null)
+			tString = "";
+		else
+		{
+			try
+			{
+				tString = cardSide2Doc.getText(0, cardSide2Doc.getLength());
+			}
+			catch (Exception e)
+			{
+				throw new Error ("CardInfo.getCardSide2Text () detected bad location.");
+			}
+		}
+		return tString;
 	}
 	
-	public void setCardSide3Text (String theString)
+	/**
+	 * This method sets the text in side 3 of the card. Note that it overwrites any existing text.
+	 * @param theString	String containing text to be put in the card side.
+	 * @throws Error Thrown if a bad location was detected.
+	 */
+	public void setCardSide3Text (String theString) throws Error
 	{
-		cardSide3Text = theString;
+		String tString = theString;
+		if (tString == null)
+			tString = "";
+		
+		try
+		{
+			cardSide3Doc.remove(0, cardSide3Doc.getLength());
+			cardSide3Doc.insertString(0, theString, null);
+		}
+		catch (Exception e)
+		{
+			throw new Error ("CardInfo.setCardSide3Text () detected bad location.");
+		}
 	}
 	
-	public String getCardSide3Text ()
+	/**
+	 * This method returns a string containing the text in card side 3.
+	 * @return		String containing text.
+	 * @throws Error	Thrown if a bad location was detected.
+	 */
+	public String getCardSide3Text () throws Error
 	{
-		return cardSide3Text;
+		String tString = null;
+		if (cardSide3Doc == null)
+			tString = "";
+		else
+		{
+			try
+			{
+				tString = cardSide3Doc.getText(0, cardSide3Doc.getLength());
+			}
+			catch (Exception e)
+			{
+				throw new Error ("CardInfo.getCardSide3Text () detected bad location.");
+			}
+		}
+		return tString;
 	}
 	
-	public void setTheCardNumber (int newCardNumber)
+	/**
+	 * This method sets the document for card side 1.
+	 * @param theDoc	Document to be assigned to the text.
+	 */
+	public void setCardSide1Doc (StyledDocument theDoc)
+	{
+		cardSide1Doc = theDoc;
+	}
+	
+	/**
+	 * This method returns the StyledDocument containing the text for side 1.
+	 * @return	Document containing the text.
+	 */
+	public StyledDocument getCardSide1Doc ()
+	{
+		return cardSide1Doc;
+	}
+	
+	/**
+	 * This method sets the document for card side 2.
+	 * @param theDoc	Document to be assigned to the text.
+	 */
+	public void setCardSide2Doc (StyledDocument theDoc)
+	{
+		cardSide2Doc = theDoc;
+	}
+	
+	/**
+	 * This method returns the StyledDocument containing the text for side 2.
+	 * @return	Document containing the text.
+	 */
+	public StyledDocument getCardSide2Doc ()
+	{
+		return cardSide2Doc;
+	}
+	
+	/**
+	 * This method sets the document for card side 3.
+	 * @param theDoc	Document to be assigned to the text.
+	 */
+	public void setCardSide3Doc (StyledDocument theDoc)
+	{
+		cardSide3Doc = theDoc;
+	}
+	
+	/**
+	 * This method returns the StyledDocument containing the text for side 3.
+	 * @return	Document containing the text.
+	 */
+	public StyledDocument getCardSide3Doc ()
+	{
+		return cardSide3Doc;
+	}
+
+	/**
+	 * This method sets the card number for the card.
+	 * @param newCardNumber	New value of the card number.
+	 * @throws Error	Thrown if newCardNumber < 1.
+	 */
+	public void setTheCardNumber (int newCardNumber) throws Error
 	{
 		if (newCardNumber < 1)
 			throw new Error ("CardInfo.setTheCardNumber () detected newCardNumber (" + newCardNumber + ") is < 1");
 		theCardNumber = newCardNumber;
 	}
 	
+	/**
+	 * This method returns the number of the card.
+	 * @return	Card number.
+	 */
 	public int getTheCardNumber ()
 	{
 		return theCardNumber;

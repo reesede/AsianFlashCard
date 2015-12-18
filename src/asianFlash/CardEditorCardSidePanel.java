@@ -5,6 +5,7 @@ package asianFlash;
 
 import java.awt.Color;
 import java.awt.Dimension;
+import java.awt.Insets;
 import java.awt.Rectangle;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
@@ -12,6 +13,7 @@ import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 
 import javax.swing.BorderFactory;
+import javax.swing.JButton;
 import javax.swing.JComboBox;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
@@ -109,6 +111,21 @@ public class CardEditorCardSidePanel extends JPanel implements ActionListener, D
 	private static final Rectangle theTextPaneBounds = new Rectangle (270, 30, panelSize.width-270, panelSize.height-35);
 	
 	/**
+	 * Boundaries for the bold button.
+	 */
+	private static final Rectangle boldButtonBounds = new Rectangle (275, 8, 20, 20);
+	
+	/**
+	 * Boundaries for the italics button.
+	 */
+	private static final Rectangle italicButtonBounds = new Rectangle (300, 8, 20, 20);
+	
+	/**
+	 * Boundaries for the underline button.
+	 */
+	private static final Rectangle underlineButtonBounds = new Rectangle (325, 8, 20, 20);
+	
+	/**
 	 * Strings indicating font sizes.
 	 */
 	private static final String [] fontSizeStrings = {"6", "7", "8", "9", "10", "11", "12", "13", 
@@ -136,6 +153,20 @@ public class CardEditorCardSidePanel extends JPanel implements ActionListener, D
 	private JTextPane theTextPane;
 	
 	/**
+	 * Button to mark as bold.
+	 */
+	private JButton boldButton;
+	
+	/**
+	 * Button to mark as italic.
+	 */
+	private JButton italicButton;
+	
+	/**
+	 * Button to mark as underlined.
+	 */
+	private JButton underlineButton;
+	/**
 	 * Card side number.
 	 */
 	private int cardSide;
@@ -149,6 +180,16 @@ public class CardEditorCardSidePanel extends JPanel implements ActionListener, D
 	 * Flag to indicate that initialization is complete.
 	 */
 	private boolean initDone = false;
+	
+	/**
+	 * Flag indicating if the italic button is set.
+	 */
+	private boolean isItalicSet;
+	
+	/**
+	 * Document being edited by theTextField.
+	 */
+	private StyledDocument theDocument;
 	
 	/**
 	 * Constructor which creates an empty (default) panel for a card side.
@@ -267,12 +308,13 @@ public class CardEditorCardSidePanel extends JPanel implements ActionListener, D
 		
 		// Set up the style for the document.
 		
-		StyledDocument theDocument = new DefaultStyledDocument();
-		Style defaultStyle = theDocument.getStyle(StyleContext.DEFAULT_STYLE);
+		StyledDocument tDocument = new DefaultStyledDocument();
+		Style defaultStyle = tDocument.getStyle(StyleContext.DEFAULT_STYLE);
 		StyleConstants.setAlignment(defaultStyle, StyleConstants.ALIGN_CENTER);
-		theDocument.addDocumentListener(this);
-		theDocument.putProperty("i18n", AsianFlash.theCardSetEditor.getI18NValueForSide(cardSide));
-		theTextPane.setDocument(theDocument);
+		tDocument.addDocumentListener(this);
+		tDocument.putProperty("i18n", AsianFlash.theCardSetEditor.getI18NValueForSide(cardSide));
+		theTextPane.setDocument(tDocument);
+		theDocument = tDocument;
 
 		// Set up the scroll bar containing the document.
 		
@@ -281,6 +323,33 @@ public class CardEditorCardSidePanel extends JPanel implements ActionListener, D
 		theScrollPane.setHorizontalScrollBarPolicy(JScrollPane.HORIZONTAL_SCROLLBAR_ALWAYS);
 		theScrollPane.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_ALWAYS);
 		add(theScrollPane);
+		
+		// Add the bold button.
+		
+		boldButton = new JButton ();
+		boldButton.setBounds(boldButtonBounds);
+		boldButton.setMargin(new Insets(0,0,0,0));
+		boldButton.setText("<HTML><B>B</B></HTML>");
+		boldButton.addActionListener(this);
+		add(boldButton);
+		
+		// Add the italics button.
+		
+		italicButton = new JButton ();
+		italicButton.setBounds(italicButtonBounds);
+		italicButton.setMargin(new Insets(0,0,0,0));
+		italicButton.setText("<HTML><I>I</I></HTML>");
+		italicButton.addActionListener(this);
+		add(italicButton);
+		
+		// Add the underline button.
+		
+		underlineButton = new JButton ();
+		underlineButton.setBounds(underlineButtonBounds);
+		underlineButton.setMargin(new Insets(0,0,0,0));
+		underlineButton.setText("<HTML><U>U</U></HTML>");
+		underlineButton.addActionListener(this);
+		add(underlineButton);
 		
 		// Set the side title to be an empty string.
 		
@@ -294,6 +363,42 @@ public class CardEditorCardSidePanel extends JPanel implements ActionListener, D
 	public StyledDocument getTheDocument ()
 	{
 		return (StyledDocument)theTextPane.getDocument();
+	}
+	
+	/**
+	 * This method sets the text for a side.
+	 * @param theText
+	 */
+	public void setCardSideText (String theText)
+	{
+		theTextPane.setText(theText);
+		theTextPane.repaint();
+		theTextPane.setCaretPosition(theText.length());
+		theDocument = theTextPane.getStyledDocument();
+	}
+	
+	public void setCardSideDoc (StyledDocument theDoc)
+	{
+		if (theDoc == null)
+			throw new Error ("CardEditorCardSidePanel.setCardSideDoc () detected theDoc == null");
+		
+		// If there currently is a document, remove this object as a document listener.
+		
+		if (theDocument != null)
+			theDoc.removeDocumentListener(this);
+		
+		// Add the document to the text pane.
+		
+		theTextPane.setDocument(theDoc);
+		theDoc.addDocumentListener(this);
+		theTextPane.repaint();
+		theTextPane.setCaretPosition(theDoc.getLength());
+		theDocument = theDoc;
+	}
+	
+	public StyledDocument getCardSideDoc ()
+	{
+		return theTextPane.getStyledDocument();
 	}
 	
 	/* (non-Javadoc)
@@ -326,6 +431,20 @@ public class CardEditorCardSidePanel extends JPanel implements ActionListener, D
 			theTextPane.setFont(AsianFlash.theCardSetEditor.getFontForSide(cardSide));
 			theTextPane.repaint();
 		}
+		
+		if (source ==  italicButton)
+		{
+			if (isItalicSet)
+			{
+				isItalicSet = false;
+				italicButton.setBackground(null);
+			}
+			else
+			{
+				isItalicSet = true;
+				italicButton.setBackground(Color.LIGHT_GRAY);
+			}
+		}
 	}
 
 	/* (non-Javadoc)
@@ -349,7 +468,7 @@ public class CardEditorCardSidePanel extends JPanel implements ActionListener, D
 			if (sideTitle == null)
 				throw new Error ("CardEditorCardSidePanel.insertUpdate () detected sideTitleTextField is null.");
 			sideTitle = sideTitleTextField.getText ();
-		}
+		}		
 	}
 
 	/* (non-Javadoc)
@@ -381,7 +500,7 @@ public class CardEditorCardSidePanel extends JPanel implements ActionListener, D
 			if (sideTitle == null)
 				throw new Error ("CardEditorCardSidePanel.changedUpdate () detected sideTitleTextField is null.");
 			sideTitle = sideTitleTextField.getText ();
-		}
+		}		
 	}
 
 }
