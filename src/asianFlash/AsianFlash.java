@@ -8,6 +8,8 @@ import java.util.*;
 
 import javax.swing.SwingUtilities;
 
+import cardseteditor.CardSetEditorDialog;
+
 /**
  * This is the main class for the Asian Flash Card program. It contains the main () routine and all global
  * objects used by the program.

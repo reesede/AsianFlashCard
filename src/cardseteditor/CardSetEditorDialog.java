@@ -1,7 +1,7 @@
 /**
  * 
  */
-package asianFlash;
+package cardseteditor;
 
 import java.awt.Cursor;
 import java.awt.Dimension;
@@ -24,6 +24,8 @@ import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JTextField;
 
+import asianFlash.AsianFlash;
+
 /**
  * This class contains the dialog which allows the user to edit card sets.
  * @author David E. Reese
@@ -31,7 +33,7 @@ import javax.swing.JTextField;
  *
  */
 
-//Copyright 2014-2015 David E. Reese
+//Copyright 2015 David E. Reese
 //
 //This file is part of AsianFlashCard.
 //
@@ -257,6 +259,16 @@ public class CardSetEditorDialog extends JFrame implements ActionListener, Windo
 	private boolean dirtyFlag;
 	
 	/**
+	 * Flag indicating that a quit editor command is queued up.
+	 */
+	private boolean quitEditorQueued;
+	
+	/**
+	 * Flag indicating that a quit AsianFlashCard command is queued up.
+	 */
+	private boolean quitAsianFlashCardQueued;
+	
+	/**
 	 * Number of cards in the card set being edited.
 	 */
 	private int cardsInSet;
@@ -270,6 +282,11 @@ public class CardSetEditorDialog extends JFrame implements ActionListener, Windo
 	 * List of cards being edited.
 	 */
 	private ArrayList<CardInfo>	theCardList;
+	
+	/**
+	 * Name of file to which the card set is to be saved.
+	 */
+	private String saveFileName;
 		
 	/**
 	 * Default constructor, which creates an empty dialog.
@@ -452,15 +469,17 @@ public class CardSetEditorDialog extends JFrame implements ActionListener, Windo
 		
 		// Initialize variables indicating the status of the card set.
 		
-		this.dirtyFlag = false;
-		this.cardBeingEdited = 0;
-		this.cardsInSet = 0;
-		this.theCardList = null;
+		dirtyFlag = false;
+		cardBeingEdited = 0;
+		cardsInSet = 0;
+		theCardList = null;
+		saveFileName = null;
+		quitEditorQueued = false;
+		quitAsianFlashCardQueued = false;
 		
 		// Set up a normal cursor.
 		
 		AsianFlash.mainFrame.setCursor(Cursor.getPredefinedCursor(Cursor.DEFAULT_CURSOR));
-		
 	}
 	
 	/**
@@ -647,6 +666,38 @@ public class CardSetEditorDialog extends JFrame implements ActionListener, Windo
 	 */
 	private void adjustControls ()
 	{
+		// If there is a quit queued up, disabled everything.
+		
+		if (quitAsianFlashCardQueued || quitEditorQueued)
+		{
+			newCardSetItem.setEnabled(false);
+			openCardSetItem.setEnabled(false);
+			closeCardSetItem.setEnabled(false);
+			saveCardSetItem.setEnabled(false);
+			saveCardSetAsItem.setEnabled(false);
+			quitEditorItem.setEnabled(false);
+			quitItem.setEnabled(false);
+			editorHelpItem.setEnabled(false);
+			previousCardButton.setEnabled(false);
+			nextCardButton.setEnabled(false);
+			createCardButton.setEnabled(false);
+			deleteCardButton.setEnabled(false);
+			cardSidePanelArray[0].disablePanel();
+			cardSidePanelArray[1].disablePanel();
+			cardSidePanelArray[2].disablePanel();
+			return;
+		}
+		
+		newCardSetItem.setEnabled(true);
+		openCardSetItem.setEnabled(true);
+		quitEditorItem.setEnabled(true);
+		quitItem.setEnabled(true);
+		editorHelpItem.setEnabled(true);
+		createCardButton.setEnabled(true);
+		cardSidePanelArray[0].enablePanel();
+		cardSidePanelArray[1].enablePanel();
+		cardSidePanelArray[2].enablePanel();
+		
 		if (dirtyFlag)
 			saveCardSetItem.setEnabled(true);
 		else
@@ -739,6 +790,14 @@ public class CardSetEditorDialog extends JFrame implements ActionListener, Windo
 	}
 	
 	/**
+	 * This method sets the dirty flag, indicating that unsaved changes have occurred.
+	 */
+	public void setDirtyFlag ()
+	{
+		dirtyFlag = true;
+	}
+	
+	/**
 	 * This method performs the activities required to create a new card.
 	 */
 	private void doCreateCardButton ()
@@ -792,6 +851,9 @@ public class CardSetEditorDialog extends JFrame implements ActionListener, Windo
 		}
 	}
 	
+	/**
+	 * This method displays the next card in the card list.
+	 */
 	private void doNextCardButton ()
 	{
 		cardBeingEdited++;
@@ -799,10 +861,100 @@ public class CardSetEditorDialog extends JFrame implements ActionListener, Windo
 		adjustControls ();
 	}
 	
+	/**
+	 * This method displays the previous card in the card list.
+	 */
 	private void doPreviousCardButton ()
 	{
 		cardBeingEdited--;
 		setCurrentCardDisplay (cardBeingEdited);			
+		adjustControls ();
+	}
+	
+	/**
+	 * This method performs the "Quit Editor" command: checking if changes need to be saved (and saving
+	 * them if necessary) and either quitting the editor immediately or setting up a deferred quit (if
+	 * changes need to be performed).
+	 */
+	private void doQuitEditor ()
+	{
+		// If there are unsaved edits in the card set, confirm the quit.
+		
+		if (dirtyFlag)
+		{
+			int quitConfirmResponse = JOptionPane.showConfirmDialog(null, "Save changes before quitting editor", "Save changes?",
+					JOptionPane.YES_NO_CANCEL_OPTION, JOptionPane.QUESTION_MESSAGE);
+			
+			switch (quitConfirmResponse)
+			{
+				case JOptionPane.YES_OPTION:
+					queueQuitEditor();
+					doSaveFile ((this.saveFileName == null) ? true : false);
+					return;
+				case JOptionPane.NO_OPTION:
+					break;
+				case JOptionPane.CANCEL_OPTION:
+					return;
+			}
+		}
+		setVisible (false);
+		AsianFlash.theCardSetEditor = null;
+		AsianFlash.theMainMenuPanel.enableEditCardSetItem();
+		dispose();
+	}
+	
+	/**
+	 * This method performs the "Quit" command: checking if changes need to be saved (and saving
+	 * them if necessary) and either quitting the editor immediately or setting up a deferred quit (if
+	 * changes need to be performed).
+	 */
+	private void doQuit ()
+	{
+		// If there are unsaved edits in the card set, confirm the quit.
+		
+		if (dirtyFlag)
+		{
+			int quitConfirmResponse = JOptionPane.showConfirmDialog(null, "Save changes before quitting editor", "Save changes?",
+					JOptionPane.YES_NO_CANCEL_OPTION, JOptionPane.QUESTION_MESSAGE);
+			
+			switch (quitConfirmResponse)
+			{
+				case JOptionPane.YES_OPTION:
+					queueQuitAsianFlashCard();
+					doSaveFile ((this.saveFileName == null) ? true : false);
+					return;
+				case JOptionPane.NO_OPTION:
+					break;
+				case JOptionPane.CANCEL_OPTION:
+					return;
+			}
+		}
+		System.exit(0);
+	}
+	
+	/**
+	 * This method performs a file save operation.
+	 * @param getNewFileName	True if a new file name is needed, false if the existing file name should be used.
+	 */
+	private void doSaveFile (boolean getNewFileName)
+	{
+	}
+
+	/**
+	 * This method queues up a quit operation from the editor window in case of a file save being needed.
+	 */
+	private void queueQuitEditor ()
+	{
+		quitEditorQueued = true;
+		adjustControls ();
+	}
+	
+	/**
+	 * This method queues up a quit operation from the AsianFlashCard program in case of a file save being needed. 
+	 */
+	private void queueQuitAsianFlashCard ()
+	{
+		quitAsianFlashCardQueued = true;
 		adjustControls ();
 	}
 	
@@ -824,6 +976,7 @@ public class CardSetEditorDialog extends JFrame implements ActionListener, Windo
 		if (source == createCardButton)
 		{
 			doCreateCardButton ();
+			return;
 		}
 		
 		// handle the next card button.
@@ -831,6 +984,7 @@ public class CardSetEditorDialog extends JFrame implements ActionListener, Windo
 		if (source == nextCardButton)
 		{
 			doNextCardButton ();
+			return;
 		}
 		
 		// Handle the previous card button.
@@ -838,6 +992,7 @@ public class CardSetEditorDialog extends JFrame implements ActionListener, Windo
 		if (source == previousCardButton)
 		{
 			doPreviousCardButton ();
+			return;
 		}
 		
 		// Handle the delete card button.
@@ -845,6 +1000,21 @@ public class CardSetEditorDialog extends JFrame implements ActionListener, Windo
 		if (source == deleteCardButton)
 		{
 			doDeleteCardButton ();
+			return;
+		}
+		
+		// Handle quit editor menu item.
+		
+		if (source == quitEditorItem)
+		{
+			doQuitEditor ();
+		}
+		
+		// Handle quit AsianFlashCard program menu item.
+		
+		if (source == quitItem)
+		{
+			doQuit ();
 		}
 	}
 
@@ -863,11 +1033,10 @@ public class CardSetEditorDialog extends JFrame implements ActionListener, Windo
 	@Override
 	public void windowClosing(WindowEvent e) 
 	{
-		setVisible (false);
-		AsianFlash.theCardSetEditor = null;
-		AsianFlash.theMainMenuPanel.enableEditCardSetItem();
-		dispose();
-
+		if (quitAsianFlashCardQueued || quitEditorQueued)
+			return;
+		
+		doQuitEditor ();
 	}
 
 	/* (non-Javadoc)

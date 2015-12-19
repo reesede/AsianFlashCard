@@ -5,14 +5,14 @@
  * @version 5.0
  *
  */
-package asianFlash;
+package cardseteditor;
 
 import javax.swing.text.DefaultStyledDocument;
 import javax.swing.text.SimpleAttributeSet;
 import javax.swing.text.StyleConstants;
 import javax.swing.text.StyledDocument;
 
-//Copyright 2014-2015 David E. Reese
+//Copyright 2015 David E. Reese
 //
 //This file is part of AsianFlashCard.
 //

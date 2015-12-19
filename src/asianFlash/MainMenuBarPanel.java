@@ -11,6 +11,8 @@ import javax.swing.*;
 import javax.swing.border.LineBorder;
 import javax.swing.filechooser.*;
 
+import cardseteditor.CardSetEditorDialog;
+
 
 /**
  * This class creates a panel containing a menu bar. It also contains all global static variables and constants.
