@@ -12,9 +12,11 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.WindowEvent;
 import java.awt.event.WindowListener;
+import java.io.File;
 import java.util.ArrayList;
 
 import javax.swing.JButton;
+import javax.swing.JFileChooser;
 import javax.swing.JFrame;
 import javax.swing.JMenu;
 import javax.swing.JMenuBar;
@@ -23,13 +25,14 @@ import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JTextField;
+import javax.swing.filechooser.FileNameExtensionFilter;
 
 import asianFlash.AsianFlash;
 
 /**
  * This class contains the dialog which allows the user to edit card sets.
  * @author David E. Reese
- * @version 4.1
+ * @version 5.0
  *
  */
 
@@ -795,6 +798,7 @@ public class CardSetEditorDialog extends JFrame implements ActionListener, Windo
 	public void setDirtyFlag ()
 	{
 		dirtyFlag = true;
+		adjustControls();
 	}
 	
 	/**
@@ -938,6 +942,90 @@ public class CardSetEditorDialog extends JFrame implements ActionListener, Windo
 	 */
 	private void doSaveFile (boolean getNewFileName)
 	{
+		File outputFile = null;
+		
+		// If there is no file name for saving the file, force a "save as" operation.
+		
+		if (saveFileName == null)
+			getNewFileName = true;
+		
+		// If a new file name is requested, use the JFileChooser to select a file to which the card set
+		// is to be saved.
+		
+		if (getNewFileName)
+		{
+			JFileChooser			saveFileChooser = new JFileChooser ();
+			
+			saveFileChooser.setFileSelectionMode(JFileChooser.FILES_ONLY);
+			saveFileChooser.setSelectedFile(new File ("newcards.alfc"));
+			saveFileChooser.setFileFilter(new FileNameExtensionFilter ("flash card file", "alfc"));
+			int returnVal = saveFileChooser.showSaveDialog(this);
+
+			switch (returnVal)
+			{
+				case JFileChooser.APPROVE_OPTION:
+					System.out.println("Save File is: " + saveFileChooser.getSelectedFile().getName());
+					System.out.println("Path is:      " + saveFileChooser.getSelectedFile().getPath());
+					System.out.println("Parent is:    " + saveFileChooser.getSelectedFile().getParent());
+					
+					// Get needed data from the file chooser and free it up.
+					
+					String theFileName = saveFileChooser.getSelectedFile().getName();
+					String fullFileName = saveFileChooser.getSelectedFile().getPath();
+					saveFileChooser = null;
+					
+					// Check to see if the file already exists. If so, display a dialog to verify that
+					// the user really wants to overwrite it.
+					
+					outputFile = new File (fullFileName);
+
+					if (outputFile.isFile())
+					{
+						int overwriteResponse = JOptionPane.showConfirmDialog(null, "File \"" + theFileName + 
+								"\" already exists. Are you sure you want to overwrite it?", "Confirm Overwrite",
+								JOptionPane.YES_NO_OPTION, JOptionPane.WARNING_MESSAGE);
+						
+						switch (overwriteResponse)
+						{
+							case JOptionPane.YES_OPTION:
+								break;
+							default:
+								dequeueQuits ();
+								return;
+						}					
+					}
+					
+					// Verify if the file is writeable. If not print a message.
+					
+					if (!outputFile.canWrite())
+					{
+						JOptionPane.showMessageDialog(null, "File " + theFileName +
+								" is not writeable. Aborting save.", "File not Writeable", 
+								JOptionPane.OK_OPTION);
+						dequeueQuits ();
+						return;
+					}
+					
+					// If control reaches this point, there is a known file that is writeable. Set the 
+					// name of the file to be saved for future save operations.
+					
+					saveFileName = fullFileName;
+					
+					break;
+				case JFileChooser.CANCEL_OPTION:
+				case JFileChooser.ERROR_OPTION:
+					dequeueQuits ();
+					return;
+			}
+			
+			// If control reaches this point, there should be a file to which we can save the contents of
+			// the card set. However, check just in case and throw an error if there is not.
+			
+			if (saveFileName == null)
+				throw new Error ("CardSetEditorDialog.doSaveFile () detected null saveFileName.");
+			
+			
+		}
 	}
 
 	/**
@@ -955,6 +1043,16 @@ public class CardSetEditorDialog extends JFrame implements ActionListener, Windo
 	private void queueQuitAsianFlashCard ()
 	{
 		quitAsianFlashCardQueued = true;
+		adjustControls ();
+	}
+	
+	/**
+	 * This method dequeues any quit operations.
+	 */
+	private void dequeueQuits ()
+	{
+		quitEditorQueued = false;
+		quitAsianFlashCardQueued = false;
 		adjustControls ();
 	}
 	
@@ -1001,6 +1099,18 @@ public class CardSetEditorDialog extends JFrame implements ActionListener, Windo
 		{
 			doDeleteCardButton ();
 			return;
+		}
+		
+		// Handle save and save as menu items.
+		
+		if (source == this.saveCardSetItem)
+		{
+			doSaveFile (false);
+		}
+		
+		if (source == saveCardSetAsItem)
+		{
+			doSaveFile (true);
 		}
 		
 		// Handle quit editor menu item.
