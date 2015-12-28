@@ -34,7 +34,7 @@ import java.util.ArrayList;
 //	20151223	DEReese				Creation (bug 000051).
 //
 
-public class WriteableCardSet 
+public class EditableCardSet 
 {
 	/**
 	 * Title for Side 1 of card set.
@@ -99,7 +99,7 @@ public class WriteableCardSet
 	/**
 	 * Default constructor.
 	 */
-	public WriteableCardSet ()
+	public EditableCardSet ()
 	{
 		side1Title = null;
 		side2Title = null;
@@ -138,7 +138,7 @@ public class WriteableCardSet
 				side3Title = theTitle;
 				break;
 			default:
-				throw new Error ("WriteableCardSet.setSideTitle () detected theSide (" + theSide + ") not in the range 1..3.");
+				throw new Error ("EditableCardSet.setSideTitle () detected theSide (" + theSide + ") not in the range 1..3.");
 		}
 	}
 	
@@ -159,7 +159,7 @@ public class WriteableCardSet
 			case 3:
 				return side3Title;
 			default:
-				throw new Error ("WriteableCardSet.getSideTitle () detected theSide (" + theSide + ") not in the range 1..3.");
+				throw new Error ("EditableCardSet.getSideTitle () detected theSide (" + theSide + ") not in the range 1..3.");
 		}
 	}
 	
@@ -183,7 +183,7 @@ public class WriteableCardSet
 				side3Font = theFont;
 				break;
 			default:
-				throw new Error ("WriteableCardSet.setSideFont () detected theSide (" + theSide + ") not in the range 1..3.");
+				throw new Error ("EditableCardSet.setSideFont () detected theSide (" + theSide + ") not in the range 1..3.");
 		}
 	}
 	
@@ -204,7 +204,7 @@ public class WriteableCardSet
 			case 3:
 				return side3Font;
 			default:
-				throw new Error ("WriteableCardSet.getSideFont () detected theSide (" + theSide + ") not in the range 1..3.");
+				throw new Error ("EditableCardSet.getSideFont () detected theSide (" + theSide + ") not in the range 1..3.");
 		}
 	}
 	
@@ -228,7 +228,7 @@ public class WriteableCardSet
 				side3Size = theSize;
 				break;
 			default:
-				throw new Error ("WriteableCardSet.setSideSize () detected theSide (" + theSide + ") not in the range 1..3.");
+				throw new Error ("EditableCardSet.setSideSize () detected theSide (" + theSide + ") not in the range 1..3.");
 		}
 	}
 	
@@ -249,7 +249,7 @@ public class WriteableCardSet
 			case 3:
 				return side3Size;
 			default:
-				throw new Error ("WriteableCardSet.getSideSize () detected theSide (" + theSide + ") not in the range 1..3.");
+				throw new Error ("EditableCardSet.getSideSize () detected theSide (" + theSide + ") not in the range 1..3.");
 		}
 	}
 	
@@ -274,7 +274,7 @@ public class WriteableCardSet
 		side3Text.add(side3);
 		
 		if ((side1Text.size() != side2Text.size()) || (side1Text.size() != side3Text.size()) || (side2Text.size() != side3Text.size()))
-			throw new Error ("WriteableCardSet.appendCard () detected ArrayList size mismatches: side1 = " 
+			throw new Error ("EditableCardSet.appendCard () detected ArrayList size mismatches: side1 = " 
 					+ side1Text.size() + ", side2 = " + side2Text.size() + ", side3 = " + side3Text.size());
 
 		return side1Text.size();
@@ -292,7 +292,7 @@ public class WriteableCardSet
 		// Verify that theCard is in range.
 		
 		if ((theCard < 1) || (theCard > side1Text.size()))
-			throw new Error ("WriteableCardSet.getCardSideText () detected theCard (" + theCard + 
+			throw new Error ("EditableCardSet.getCardSideText () detected theCard (" + theCard + 
 					") > number of cards in list (" + side1Text.size() + ")");
 		
 		switch (theSide)
@@ -304,7 +304,7 @@ public class WriteableCardSet
 			case 3:
 				return side3Text.get(theCard - 1);
 			default:
-				throw new Error ("WriteableCardSet.getCardSideText () detected theSide (" + theSide + ") not in range 1..3.");
+				throw new Error ("EditableCardSet.getCardSideText () detected theSide (" + theSide + ") not in range 1..3.");
 		}
 	}
 	

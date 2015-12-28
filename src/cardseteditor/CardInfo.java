@@ -12,6 +12,8 @@ import javax.swing.text.SimpleAttributeSet;
 import javax.swing.text.StyleConstants;
 import javax.swing.text.StyledDocument;
 
+import asianFlash.AsianFlash;
+
 //Copyright 2015 David E. Reese
 //
 //This file is part of AsianFlashCard.
@@ -76,6 +78,12 @@ public class CardInfo
 		cardSide2Doc.setParagraphAttributes(0, 0, center, false);
 		cardSide3Doc.setParagraphAttributes(0, 0, center, false);
 
+		// Set the i18n property.
+		
+		cardSide1Doc.putProperty("i18n", AsianFlash.theCardSetEditor.getI18NValueForSide(1));
+		cardSide2Doc.putProperty("i18n", AsianFlash.theCardSetEditor.getI18NValueForSide(2));
+		cardSide3Doc.putProperty("i18n", AsianFlash.theCardSetEditor.getI18NValueForSide(3));
+
 		// Assign the text to the sides of the card.
 		
 		try 
@@ -118,7 +126,13 @@ public class CardInfo
 		cardSide1Doc.setParagraphAttributes(0, 0, center, false);
 		cardSide2Doc.setParagraphAttributes(0, 0, center, false);
 		cardSide3Doc.setParagraphAttributes(0, 0, center, false);
-
+		
+		// Set the i18n property.
+		
+		cardSide1Doc.putProperty("i18n", AsianFlash.theCardSetEditor.getI18NValueForSide(1));
+		cardSide2Doc.putProperty("i18n", AsianFlash.theCardSetEditor.getI18NValueForSide(2));
+		cardSide3Doc.putProperty("i18n", AsianFlash.theCardSetEditor.getI18NValueForSide(3));
+		
 		// Assign the text to the sides of the card.
 		
 		try 

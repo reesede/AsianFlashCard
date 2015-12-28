@@ -339,6 +339,45 @@ public class CardEditorCardSidePanel extends JPanel implements ActionListener, D
 	}
 	
 	/**
+	 * This method sets the card side title.
+	 * @param theTitle	new title of side.
+	 */
+	public void setCardSideTitle (String theTitle)
+	{
+		sideTitleTextField.setText(theTitle);
+	}
+	
+	/**
+	 * This method returns the title of the card side.
+	 * @return	Title of the card side.
+	 */
+	public String getCardSideTitle ()
+	{
+		if (sideTitleTextField == null)
+			return null;
+		else
+			return sideTitleTextField.getText();
+	}
+	
+	/**
+	 * This method sets the font for the side.
+	 * @param theFont	Font for the side.
+	 */
+	public void setCardSideFont (String theFont)
+	{
+		sideFontFamilyComboBox.setSelectedItem(theFont);
+	}
+	
+	/**
+	 * This methos sets the size of the font for the side.
+	 * @param theSize	Size of font for side.
+	 */
+	public void setCardSideSize (String theSize)
+	{
+		sideFontSizeComboBox.setSelectedItem(theSize);
+	}
+	
+	/**
 	 * This method disables all sub-components of the panel.
 	 */
 	public void disablePanel ()

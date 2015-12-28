@@ -127,6 +127,7 @@ import javax.swing.*;
 //	20151127	DEReese					Added GPL information (bug 000047).
 //	20151206	DEReese					Add recalculation of number of cards in the test in recalculateCounts ()
 //										(bug 000050).
+//	20151225	DEReese					Removed extraneous println () call previously used for debug (bug 000051).
 //
 
 
@@ -1649,7 +1650,6 @@ public class CardTest
 		
 		while (temp != null)
 		{
-			System.out.println ("     count = " + count);
 			temp.setCardNumber(count);
 			count++;
 			temp = temp.getNextCard();

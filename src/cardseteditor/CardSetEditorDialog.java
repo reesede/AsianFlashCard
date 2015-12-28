@@ -12,6 +12,8 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.WindowEvent;
 import java.awt.event.WindowListener;
+import java.beans.PropertyChangeEvent;
+import java.beans.PropertyChangeListener;
 import java.io.File;
 import java.util.ArrayList;
 
@@ -25,6 +27,7 @@ import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JTextField;
+import javax.swing.SwingUtilities;
 import javax.swing.filechooser.FileNameExtensionFilter;
 
 import asianFlash.AsianFlash;
@@ -58,7 +61,7 @@ import asianFlash.AsianFlash;
 //	20151208	DEReese				Creation (bug 000051).
 //
 
-public class CardSetEditorDialog extends JFrame implements ActionListener, WindowListener 
+public class CardSetEditorDialog extends JFrame implements ActionListener, PropertyChangeListener, WindowListener 
 {
 
 	/**
@@ -272,6 +275,21 @@ public class CardSetEditorDialog extends JFrame implements ActionListener, Windo
 	private boolean quitAsianFlashCardQueued;
 	
 	/**
+	 * Indicates if there is an open file queued up.
+	 */
+	private boolean openQueued;
+	
+	/**
+	 * Indicates that a save is in progress.
+	 */
+	private boolean doingSave;
+	
+	/**
+	 * Indicates that an open is in progress.
+	 */
+	private boolean doingOpen;
+	
+	/**
 	 * Number of cards in the card set being edited.
 	 */
 	private int cardsInSet;
@@ -290,6 +308,11 @@ public class CardSetEditorDialog extends JFrame implements ActionListener, Windo
 	 * Name of file to which the card set is to be saved.
 	 */
 	private String saveFileName;
+	
+	/**
+	 * String returned from the routine performing the save containing error information.
+	 */
+	private String saveErrorString = null;
 		
 	/**
 	 * Default constructor, which creates an empty dialog.
@@ -308,7 +331,9 @@ public class CardSetEditorDialog extends JFrame implements ActionListener, Windo
 		// Set the global pointer to the editor window.
 		
 		AsianFlash.theCardSetEditor = this;
-		
+		this.addPropertyChangeListener(this);
+		setCursor(Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR));
+
 		// Set up the frame properties.
 		
 		setBounds(dialogBounds);
@@ -479,10 +504,14 @@ public class CardSetEditorDialog extends JFrame implements ActionListener, Windo
 		saveFileName = null;
 		quitEditorQueued = false;
 		quitAsianFlashCardQueued = false;
+		openQueued = false;
+		doingSave = false;
+		doingOpen = false;
 		
 		// Set up a normal cursor.
 		
 		AsianFlash.mainFrame.setCursor(Cursor.getPredefinedCursor(Cursor.DEFAULT_CURSOR));
+		setCursor(Cursor.getPredefinedCursor(Cursor.DEFAULT_CURSOR));
 	}
 	
 	/**
@@ -671,7 +700,7 @@ public class CardSetEditorDialog extends JFrame implements ActionListener, Windo
 	{
 		// If there is a quit queued up, disabled everything.
 		
-		if (quitAsianFlashCardQueued || quitEditorQueued)
+		if (quitAsianFlashCardQueued || quitEditorQueued || openQueued || doingSave || doingOpen)
 		{
 			newCardSetItem.setEnabled(false);
 			openCardSetItem.setEnabled(false);
@@ -943,6 +972,8 @@ public class CardSetEditorDialog extends JFrame implements ActionListener, Windo
 	private void doSaveFile (boolean getNewFileName)
 	{
 		File outputFile = null;
+		String theFileName = null;
+		String fullFileName = null;
 		
 		// If there is no file name for saving the file, force a "save as" operation.
 		
@@ -964,14 +995,11 @@ public class CardSetEditorDialog extends JFrame implements ActionListener, Windo
 			switch (returnVal)
 			{
 				case JFileChooser.APPROVE_OPTION:
-					System.out.println("Save File is: " + saveFileChooser.getSelectedFile().getName());
-					System.out.println("Path is:      " + saveFileChooser.getSelectedFile().getPath());
-					System.out.println("Parent is:    " + saveFileChooser.getSelectedFile().getParent());
 					
 					// Get needed data from the file chooser and free it up.
 					
-					String theFileName = saveFileChooser.getSelectedFile().getName();
-					String fullFileName = saveFileChooser.getSelectedFile().getPath();
+					theFileName = saveFileChooser.getSelectedFile().getName();
+					fullFileName = saveFileChooser.getSelectedFile().getPath();
 					saveFileChooser = null;
 					
 					// Check to see if the file already exists. If so, display a dialog to verify that
@@ -993,17 +1021,17 @@ public class CardSetEditorDialog extends JFrame implements ActionListener, Windo
 								dequeueQuits ();
 								return;
 						}					
-					}
-					
-					// Verify if the file is writeable. If not print a message.
-					
-					if (!outputFile.canWrite())
-					{
-						JOptionPane.showMessageDialog(null, "File " + theFileName +
-								" is not writeable. Aborting save.", "File not Writeable", 
-								JOptionPane.OK_OPTION);
-						dequeueQuits ();
-						return;
+
+						// Verify if the file is writeable. If not print a message.
+						
+						if (!outputFile.canWrite())
+						{
+							JOptionPane.showMessageDialog(null, "File " + theFileName +
+									" is not writeable. Aborting save.", "File not Writeable", 
+									JOptionPane.OK_OPTION);
+							dequeueQuits ();
+							return;
+						}						
 					}
 					
 					// If control reaches this point, there is a known file that is writeable. Set the 
@@ -1024,8 +1052,221 @@ public class CardSetEditorDialog extends JFrame implements ActionListener, Windo
 			if (saveFileName == null)
 				throw new Error ("CardSetEditorDialog.doSaveFile () detected null saveFileName.");
 			
+			// Indicate that a save is being performed and set the rolling cursor.
 			
+			doingSave = true;
+			adjustControls ();
+			AsianFlash.mainFrame.setCursor(Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR));
+			setCursor(Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR));
+	
+			// Save the game into the file as a background task.
+			
+			SwingUtilities.invokeLater(new Runnable ()
+			{
+				public void run ()
+				{
+					// Set initial status.
+					
+					AsianFlash.theCardSetEditor.firePropertyChange("SaveComplete", null, "Starting");
+					
+					// Build a EditableCardSet for the card set.
+					
+					EditableCardSet	theOutputSet = new EditableCardSet ();
+					
+					// Get the common data for the set.
+					
+					theOutputSet.setSideTitle(1, cardSidePanelArray[0].getCardSideTitle ());
+					theOutputSet.setSideTitle(2, cardSidePanelArray[1].getCardSideTitle ());
+					theOutputSet.setSideTitle(3, cardSidePanelArray[2].getCardSideTitle ());
+					
+					theOutputSet.setSideFont(1, side1FontFamily);
+					theOutputSet.setSideFont(2, side2FontFamily);
+					theOutputSet.setSideFont(3, side3FontFamily);
+					
+					theOutputSet.setSideSize(1, side1FontSize);
+					theOutputSet.setSideSize(2, side2FontSize);
+					theOutputSet.setSideSize(3, side3FontSize);
+					
+					// Get the data for each card.
+					
+					for (int i = 0; i < theCardList.size(); i++)
+					{
+						CardInfo	tCard = theCardList.get(i);
+						
+						theOutputSet.appendCard(tCard.getCardSide1Text(), tCard.getCardSide2Text(), tCard.getCardSide3Text());
+					}
+					
+					// Verify that the number of cards in the output set is the same as the number of cards
+					// in theCardList.
+					
+					if (theCardList.size() != theOutputSet.getNumCards())
+						throw new Error ("CardSetEditorDialog.doSaveFile () detected theCardList.size () != theOutputSet.getNumCards().");
+										
+					// Create a DOM writer and attempt to write to the file.
+					
+					try
+					{
+						EditorDOM theDOM = new EditorDOM ();
+						theDOM.writeCardSet(saveFileName, theOutputSet);
+					}
+					catch (Exception e)
+					{
+						AsianFlash.theCardSetEditor.firePropertyChange("SaveComplete", "Starting", "Failure");
+						return;
+					}
+					
+					// Set final status.
+					
+					AsianFlash.theCardSetEditor.firePropertyChange("SaveComplete", "Starting", "Success");
+				}
+			});
 		}
+	}
+	
+	private void doOpenCardSet ()
+	{
+		// Check if there are unsaved changes. If so, ask the user if they want to save them first.
+		
+		if (dirtyFlag)
+		{
+			int saveResult = JOptionPane.showConfirmDialog(null, "There are unsaved changes.\nDo you want to save them first?", 
+					"Save Changes?", JOptionPane.YES_NO_CANCEL_OPTION);
+			
+			switch (saveResult)
+			{
+				case JOptionPane.YES_OPTION:
+					queueOpen ();
+					doSaveFile (false);
+					return;
+				case JOptionPane.NO_OPTION:
+					break;
+				case JOptionPane.CANCEL_OPTION:
+					return;
+				default:
+					throw new Error ("CardSetEditorDialog.doOpenCardSet () detected showConfirmDialog () returned and invalid result (" + saveResult + ").");
+			}
+		}
+		
+		// Get the name of the file to open.
+		
+		JFileChooser openFileChooser = new JFileChooser ();
+		openFileChooser.setFileSelectionMode(JFileChooser.FILES_ONLY);
+		openFileChooser.setFileFilter(new FileNameExtensionFilter ("flash card file", "alfc"));
+		openFileChooser.setMultiSelectionEnabled(true);
+		
+		int retValue = openFileChooser.showOpenDialog(this);
+		
+		switch (retValue)
+		{
+			case JFileChooser.APPROVE_OPTION:
+				break;
+			case JFileChooser.CANCEL_OPTION:
+			case JFileChooser.ERROR_OPTION:
+				return;
+		}
+		
+		// Get the name of the file to which the card set is to be saved.
+		
+		final File []	theFilesToOpen = openFileChooser.getSelectedFiles();
+		
+		// If there are no files to open, just return.
+		
+		if (theFilesToOpen == null)
+			return;
+		if (theFilesToOpen.length == 0)
+			return;
+
+		// Indicate that an open is in progress and set the rolling cursor.
+		
+		doingOpen = true;
+		adjustControls ();
+		AsianFlash.mainFrame.setCursor(Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR));
+		setCursor(Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR));
+		
+		// Do the open as a background task.
+
+		SwingUtilities.invokeLater(new Runnable ()
+		{
+			public void run ()
+			{
+				try
+				{
+					// Create the card set.
+					
+					ArrayList<CardInfo> tCardList = new ArrayList<CardInfo> ();
+
+					// Cycle through each file to open, adding the cards to the set.
+					
+					for (int i = 0; i < theFilesToOpen.length; i++)
+					{
+						// Get the DOM and read the card set.
+						
+						EditorDOM theDOM = new EditorDOM ();
+						EditableCardSet newCardSet = theDOM.readCardSet(theFilesToOpen[i].getPath());
+						
+						// Move the parameters for three side to the editor panels and internal data items.
+						// This is done only for the first file. The information in any additional files will
+						// be ignored.
+						
+						if (i == 0)
+						{
+							AsianFlash.theCardSetEditor.cardSidePanelArray[0].setCardSideTitle(newCardSet.getSideTitle(1));
+							AsianFlash.theCardSetEditor.setFontFamilyForSide(1, newCardSet.getSideFont(1));
+							AsianFlash.theCardSetEditor.cardSidePanelArray[0].setCardSideFont(newCardSet.getSideFont(1));
+							AsianFlash.theCardSetEditor.setFontSizeForSide(1, new Integer (newCardSet.getSideSize(1)).intValue());
+							AsianFlash.theCardSetEditor.cardSidePanelArray[0].setCardSideSize(newCardSet.getSideSize(1));
+
+							AsianFlash.theCardSetEditor.cardSidePanelArray[1].setCardSideTitle(newCardSet.getSideTitle(2));
+							AsianFlash.theCardSetEditor.setFontFamilyForSide(2, newCardSet.getSideFont(2));
+							AsianFlash.theCardSetEditor.cardSidePanelArray[1].setCardSideFont(newCardSet.getSideFont(2));
+							AsianFlash.theCardSetEditor.setFontSizeForSide(2, new Integer (newCardSet.getSideSize(2)).intValue());
+							AsianFlash.theCardSetEditor.cardSidePanelArray[1].setCardSideSize(newCardSet.getSideSize(2));
+
+							AsianFlash.theCardSetEditor.cardSidePanelArray[2].setCardSideTitle(newCardSet.getSideTitle(3));
+							AsianFlash.theCardSetEditor.setFontFamilyForSide(3, newCardSet.getSideFont(3));
+							AsianFlash.theCardSetEditor.cardSidePanelArray[2].setCardSideFont(newCardSet.getSideFont(3));
+							AsianFlash.theCardSetEditor.setFontSizeForSide(3, new Integer (newCardSet.getSideSize(3)).intValue());
+							AsianFlash.theCardSetEditor.cardSidePanelArray[2].setCardSideSize(newCardSet.getSideSize(3));							
+						}
+						
+						// Add the cards to the card set.
+						
+						for (int j = 0; j < newCardSet.getNumCards(); j++)
+						{
+							CardInfo newCard = new CardInfo (j+1, 
+									newCardSet.getCardSideText(j+1, 1), 
+									newCardSet.getCardSideText(j+1, 2), 
+									newCardSet.getCardSideText(j+1, 3));
+							tCardList.add(newCard);
+						}
+					}
+					
+					// If there was only one file opened, set the saveFileName to the name of that file.
+					// If multiple files were opened, null the saveFileName, since we can't determine
+					// to which file we should save the data.
+					
+					if (theFilesToOpen.length == 1)
+						saveFileName = theFilesToOpen[0].getPath();
+					else
+						saveFileName = null;
+					
+					// Make the new card list the current card list and display the first card in the 
+					// dialog.
+					
+					AsianFlash.theCardSetEditor.theCardList = tCardList;
+					AsianFlash.theCardSetEditor.cardsInSet = tCardList.size();
+					AsianFlash.theCardSetEditor.cardBeingEdited = 1;
+					AsianFlash.theCardSetEditor.setCurrentCardDisplay(1);
+					AsianFlash.theCardSetEditor.firePropertyChange("OpenComplete", "Starting", "Success");					
+				}
+				catch (Exception e)
+				{
+					saveFileName = null;
+					AsianFlash.theCardSetEditor.firePropertyChange("OpenComplete", "Starting", "Failure");		
+					return;
+				}
+			}
+		});
 	}
 
 	/**
@@ -1056,14 +1297,30 @@ public class CardSetEditorDialog extends JFrame implements ActionListener, Windo
 		adjustControls ();
 	}
 	
+	/**
+	 * This method queues up an open operation.
+	 */
+	private void queueOpen ()
+	{
+		openQueued = true;
+		adjustControls ();
+	}
+	
+	/**
+	 * This method dequeues an open operation.
+	 */
+	private void dequeueOpen ()
+	{
+		openQueued = false;
+		adjustControls ();
+	}
+	
 	/* (non-Javadoc)
 	 * @see java.awt.event.ActionListener#actionPerformed(java.awt.event.ActionEvent)
 	 */
 	@Override
 	public void actionPerformed(ActionEvent e) 
 	{
-		// TODO Auto-generated method stub
-
 		if (!initDone)
 			return;
 		
@@ -1101,6 +1358,20 @@ public class CardSetEditorDialog extends JFrame implements ActionListener, Windo
 			return;
 		}
 		
+		// Handle creating a new card set.
+		
+		if (source == this.newCardSetItem)
+		{
+			
+		}
+		
+		// Handle opening a card set.
+		
+		if (source == this.openCardSetItem)
+		{
+			doOpenCardSet ();
+		}
+		
 		// Handle save and save as menu items.
 		
 		if (source == this.saveCardSetItem)
@@ -1125,6 +1396,84 @@ public class CardSetEditorDialog extends JFrame implements ActionListener, Windo
 		if (source == quitItem)
 		{
 			doQuit ();
+		}
+	}
+
+	@Override
+	public void propertyChange(PropertyChangeEvent evt) 
+	{
+		String	theProperty = evt.getPropertyName();
+		String	theValue;
+		
+		// Handle changes to the SaveComplete property, which indicates the status of a save operation.
+		
+		if (theProperty == "SaveComplete")
+		{
+			theValue = (String)(evt.getNewValue());
+			
+			if (theValue == "Success")
+			{
+				AsianFlash.mainFrame.setCursor(Cursor.getPredefinedCursor(Cursor.DEFAULT_CURSOR));
+				setCursor(Cursor.getPredefinedCursor(Cursor.DEFAULT_CURSOR));
+				dirtyFlag = false;
+				doingSave = false;
+				if (quitAsianFlashCardQueued)
+				{
+					dequeueQuits ();
+					doQuit ();
+					return;
+				}
+				if (quitEditorQueued)
+				{
+					dequeueQuits ();
+					doQuitEditor ();
+					return;
+				}
+				if (openQueued)
+				{
+					dequeueOpen ();
+					doOpenCardSet ();
+					return;
+				}
+				adjustControls ();
+				return;
+			}
+			if (theValue == "Failure")
+			{
+				doingSave = false;
+				AsianFlash.mainFrame.setCursor(Cursor.getPredefinedCursor(Cursor.DEFAULT_CURSOR));
+				setCursor(Cursor.getPredefinedCursor(Cursor.DEFAULT_CURSOR));
+				JOptionPane.showMessageDialog(null, "Error: could not write to file " + saveFileName + this.saveErrorString, "Error Saving Cardset", JOptionPane.OK_OPTION);
+				dequeueQuits();
+				dequeueOpen ();
+				return;
+			}
+			return;
+		}
+		
+		// Handle changes to the OpenComplete property, which indicates the status of an open operation.
+		
+		if (theProperty == "OpenComplete")
+		{
+			theValue = (String)(evt.getNewValue());
+					
+			if (theValue == "Success")
+			{
+				doingOpen = false;
+				dirtyFlag = false;
+				AsianFlash.mainFrame.setCursor(Cursor.getPredefinedCursor(Cursor.DEFAULT_CURSOR));
+				setCursor(Cursor.getPredefinedCursor(Cursor.DEFAULT_CURSOR));
+				adjustControls();
+			}
+			if (theValue == "Failure")
+			{
+				doingOpen = false;
+				dirtyFlag = false;
+				AsianFlash.mainFrame.setCursor(Cursor.getPredefinedCursor(Cursor.DEFAULT_CURSOR));
+				setCursor(Cursor.getPredefinedCursor(Cursor.DEFAULT_CURSOR));
+				JOptionPane.showMessageDialog(null, "Error: could not open files!", "Error Opening Cardset", JOptionPane.OK_OPTION);
+				adjustControls();
+			}
 		}
 	}
 
