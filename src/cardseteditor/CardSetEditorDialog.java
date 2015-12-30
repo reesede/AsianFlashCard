@@ -18,8 +18,10 @@ import java.io.File;
 import java.util.ArrayList;
 
 import javax.swing.JButton;
+import javax.swing.JEditorPane;
 import javax.swing.JFileChooser;
 import javax.swing.JFrame;
+import javax.swing.JLabel;
 import javax.swing.JMenu;
 import javax.swing.JMenuBar;
 import javax.swing.JMenuItem;
@@ -31,6 +33,7 @@ import javax.swing.SwingUtilities;
 import javax.swing.filechooser.FileNameExtensionFilter;
 
 import asianFlash.AsianFlash;
+import asianFlash.AbstractHelpDialog;
 
 /**
  * This class contains the dialog which allows the user to edit card sets.
@@ -88,6 +91,16 @@ public class CardSetEditorDialog extends JFrame implements ActionListener, Prope
 	 * Menu bar boundaries.
 	 */
 	private static final Rectangle mainMenuBarBounds = new Rectangle (0, 0, dialogBounds.width, 15);
+	
+	/**
+	 * Boundaries for the file name label.
+	 */
+	private static final Rectangle fileNameLabelBounds = new Rectangle (5, 32, 120, 15);
+	
+	/**
+	 * Boundaries for the file name text label.
+	 */
+	private static final Rectangle fileNameEditorPaneBounds = new Rectangle (130, 30, 600, 40);
 	
 	/**
 	 * Boundary of previous card button.
@@ -195,6 +208,11 @@ public class CardSetEditorDialog extends JFrame implements ActionListener, Prope
 	private JTextField cardNumberTextField;
 	
 	/**
+	 * Text editor pane containing the file name.
+	 */
+	private JEditorPane fileNameEditorPane;
+	
+	/**
 	 * Array of card sides.
 	 */
 	private CardEditorCardSidePanel cardSidePanelArray [];
@@ -202,12 +220,12 @@ public class CardSetEditorDialog extends JFrame implements ActionListener, Prope
 	/**
 	 * Names of font families.
 	 */
-	private static String [] fontFamilyNames = null;
+	private static volatile String [] fontFamilyNames = null;
 	
 	/**
 	 * Indication that the font families have been discovered.
 	 */
-	private static Boolean fontFamiliesOK = Boolean.FALSE;
+	private static volatile Boolean fontFamiliesOK = Boolean.FALSE;
 	
 	/**
 	 * Font family name for side 1.
@@ -255,6 +273,11 @@ public class CardSetEditorDialog extends JFrame implements ActionListener, Prope
 	private String side3I18NValue = new String (new Boolean (AsianFlash.side3i18n).toString());
 	
 	/**
+	 * Main panel for dialog.
+	 */
+	private JPanel mainPanel;
+	
+	/**
 	 * Indication that initialization is done.
 	 */
 	private boolean initDone = false;
@@ -278,6 +301,11 @@ public class CardSetEditorDialog extends JFrame implements ActionListener, Prope
 	 * Indicates if there is an open file queued up.
 	 */
 	private boolean openQueued;
+	
+	/**
+	 * Indicates that a close card set is queued up.
+	 */
+	private boolean closeQueued;
 	
 	/**
 	 * Indicates that a save is in progress.
@@ -313,6 +341,11 @@ public class CardSetEditorDialog extends JFrame implements ActionListener, Prope
 	 * String returned from the routine performing the save containing error information.
 	 */
 	private String saveErrorString = null;
+	
+	/**
+	 * Help Dialog.
+	 */
+	private AbstractHelpDialog theHelpDialog = null;
 		
 	/**
 	 * Default constructor, which creates an empty dialog.
@@ -343,7 +376,7 @@ public class CardSetEditorDialog extends JFrame implements ActionListener, Prope
 		
 		// Set up the main panel and scroll pane.
 		
-		JPanel mainPanel = new JPanel ();
+		mainPanel = new JPanel ();
 		mainPanel.setLayout(null);
 		mainPanel.setBounds(mainPanelBounds);
 		mainPanel.setPreferredSize(new Dimension (mainPanelBounds.width-30, mainPanelBounds.height-50));
@@ -420,6 +453,21 @@ public class CardSetEditorDialog extends JFrame implements ActionListener, Prope
 		quitItem.setEnabled(true);
 		editorHelpItem.setEnabled(true);
 		
+		// Set up the file name label and text field.
+		
+		JLabel theLabel = new JLabel ("Card Set File Name:");
+		theLabel.setBounds(fileNameLabelBounds);
+		mainPanel.add(theLabel);
+		
+		fileNameEditorPane = new JEditorPane ();
+		fileNameEditorPane.setText("");
+		fileNameEditorPane.setBounds(fileNameEditorPaneBounds);
+		fileNameEditorPane.setEditable(false);
+		fileNameEditorPane.setBackground(mainPanel.getBackground());
+		mainPanel.add(fileNameEditorPane);
+		
+		mainPanel.add(fileNameEditorPane);
+		
 		// Set up the previous card button.
 		
 		previousCardButton = new JButton ("< Prev. Card");
@@ -460,18 +508,7 @@ public class CardSetEditorDialog extends JFrame implements ActionListener, Prope
 		deleteCardButton.setEnabled(false);
 		mainPanel.add(deleteCardButton);
 		
-		// Add the editor panels for the three sides of the card.
-		
-		cardSidePanelArray = new CardEditorCardSidePanel [3];
-		int startYLoc = 100;
-		
-		for (int i = 0; i <= 2; i++)
-		{
-			cardSidePanelArray[i] = new CardEditorCardSidePanel (i+1);
-			cardSidePanelArray[i].setBounds(0, startYLoc, CardEditorCardSidePanel.panelSize.width, CardEditorCardSidePanel.panelSize.height);
-			startYLoc += CardEditorCardSidePanel.panelSize.height;
-			mainPanel.add(cardSidePanelArray[i]);
-		}
+		// Make sure that the fonts are available.
 		
 		boolean checkFonts = false;
 		while (!checkFonts)
@@ -491,6 +528,10 @@ public class CardSetEditorDialog extends JFrame implements ActionListener, Prope
 			}
 		}
 		
+		// Add the editor panels for the three sides of the card.
+		
+		buildSidePanels ();
+		
 		revalidate ();
 		repaint ();
 		setVisible(true);
@@ -505,6 +546,7 @@ public class CardSetEditorDialog extends JFrame implements ActionListener, Prope
 		quitEditorQueued = false;
 		quitAsianFlashCardQueued = false;
 		openQueued = false;
+		closeQueued = false;
 		doingSave = false;
 		doingOpen = false;
 		
@@ -512,6 +554,20 @@ public class CardSetEditorDialog extends JFrame implements ActionListener, Prope
 		
 		AsianFlash.mainFrame.setCursor(Cursor.getPredefinedCursor(Cursor.DEFAULT_CURSOR));
 		setCursor(Cursor.getPredefinedCursor(Cursor.DEFAULT_CURSOR));
+	}
+	
+	private void buildSidePanels ()
+	{
+		cardSidePanelArray = new CardEditorCardSidePanel [3];
+		int startYLoc = 100;
+		
+		for (int i = 0; i <= 2; i++)
+		{
+			cardSidePanelArray[i] = new CardEditorCardSidePanel (i+1);
+			cardSidePanelArray[i].setBounds(0, startYLoc, CardEditorCardSidePanel.panelSize.width, CardEditorCardSidePanel.panelSize.height);
+			startYLoc += CardEditorCardSidePanel.panelSize.height;
+			mainPanel.add(cardSidePanelArray[i]);
+		}	
 	}
 	
 	/**
@@ -698,6 +754,8 @@ public class CardSetEditorDialog extends JFrame implements ActionListener, Prope
 	 */
 	private void adjustControls ()
 	{
+//		System.out.println ("dirtyFlag = " + dirtyFlag);	// For Debug.
+		
 		// If there is a quit queued up, disabled everything.
 		
 		if (quitAsianFlashCardQueued || quitEditorQueued || openQueued || doingSave || doingOpen)
@@ -722,6 +780,7 @@ public class CardSetEditorDialog extends JFrame implements ActionListener, Prope
 		
 		newCardSetItem.setEnabled(true);
 		openCardSetItem.setEnabled(true);
+		closeCardSetItem.setEnabled(true);
 		quitEditorItem.setEnabled(true);
 		quitItem.setEnabled(true);
 		editorHelpItem.setEnabled(true);
@@ -770,7 +829,11 @@ public class CardSetEditorDialog extends JFrame implements ActionListener, Prope
 		if (theCardList == null)
 		{
 			if (theCardNum == 1)
+			{
 				theCardList = new ArrayList<CardInfo> ();
+				cardsInSet = 0;
+				dirtyFlag = false;
+			}
 			else
 				throw new Error ("CardSetEditorDialog.createEmptyCard () detected theCardList == null and theCardNum (" + theCardNum + ") > 1.");
 		}
@@ -928,6 +991,8 @@ public class CardSetEditorDialog extends JFrame implements ActionListener, Prope
 					break;
 				case JOptionPane.CANCEL_OPTION:
 					return;
+				default:
+					throw new Error ("CardSetEditorDialog.doQuitEditor () detected invalid return code (" + quitConfirmResponse + ") from showConfirmDialog.");
 			}
 		}
 		setVisible (false);
@@ -939,14 +1004,24 @@ public class CardSetEditorDialog extends JFrame implements ActionListener, Prope
 	/**
 	 * This method performs the "Quit" command: checking if changes need to be saved (and saving
 	 * them if necessary) and either quitting the editor immediately or setting up a deferred quit (if
-	 * changes need to be performed).
+	 * changes need to be performed). Note that this routine is public so that the main AsianFlashCard
+	 * application can call it to check if there are unsaved changes.
 	 */
-	private void doQuit ()
+	public void doQuit ()
 	{
 		// If there are unsaved edits in the card set, confirm the quit.
 		
 		if (dirtyFlag)
 		{
+			// Bring the window to the front.
+			
+			toFront();
+			setVisible (true);
+			setState (JFrame.NORMAL);
+			
+			// Ask if changes should be saved. If so, queue a quit and do a save. If not, just quit. If
+			// a cancel is requested, just return.
+			
 			int quitConfirmResponse = JOptionPane.showConfirmDialog(null, "Save changes before quitting editor", "Save changes?",
 					JOptionPane.YES_NO_CANCEL_OPTION, JOptionPane.QUESTION_MESSAGE);
 			
@@ -954,12 +1029,14 @@ public class CardSetEditorDialog extends JFrame implements ActionListener, Prope
 			{
 				case JOptionPane.YES_OPTION:
 					queueQuitAsianFlashCard();
-					doSaveFile ((this.saveFileName == null) ? true : false);
+					doSaveFile ((saveFileName == null) ? true : false);
 					return;
 				case JOptionPane.NO_OPTION:
 					break;
 				case JOptionPane.CANCEL_OPTION:
 					return;
+				default:
+					throw new Error ("CardSetEditorDialog.doQuit () detected invalid return code (" + quitConfirmResponse + ") from showConfirmDialog.");
 			}
 		}
 		System.exit(0);
@@ -1038,6 +1115,7 @@ public class CardSetEditorDialog extends JFrame implements ActionListener, Prope
 					// name of the file to be saved for future save operations.
 					
 					saveFileName = fullFileName;
+					fileNameEditorPane.setText(saveFileName);
 					
 					break;
 				case JFileChooser.CANCEL_OPTION:
@@ -1045,82 +1123,82 @@ public class CardSetEditorDialog extends JFrame implements ActionListener, Prope
 					dequeueQuits ();
 					return;
 			}
-			
-			// If control reaches this point, there should be a file to which we can save the contents of
-			// the card set. However, check just in case and throw an error if there is not.
-			
-			if (saveFileName == null)
-				throw new Error ("CardSetEditorDialog.doSaveFile () detected null saveFileName.");
-			
-			// Indicate that a save is being performed and set the rolling cursor.
-			
-			doingSave = true;
-			adjustControls ();
-			AsianFlash.mainFrame.setCursor(Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR));
-			setCursor(Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR));
-	
-			// Save the game into the file as a background task.
-			
-			SwingUtilities.invokeLater(new Runnable ()
-			{
-				public void run ()
-				{
-					// Set initial status.
-					
-					AsianFlash.theCardSetEditor.firePropertyChange("SaveComplete", null, "Starting");
-					
-					// Build a EditableCardSet for the card set.
-					
-					EditableCardSet	theOutputSet = new EditableCardSet ();
-					
-					// Get the common data for the set.
-					
-					theOutputSet.setSideTitle(1, cardSidePanelArray[0].getCardSideTitle ());
-					theOutputSet.setSideTitle(2, cardSidePanelArray[1].getCardSideTitle ());
-					theOutputSet.setSideTitle(3, cardSidePanelArray[2].getCardSideTitle ());
-					
-					theOutputSet.setSideFont(1, side1FontFamily);
-					theOutputSet.setSideFont(2, side2FontFamily);
-					theOutputSet.setSideFont(3, side3FontFamily);
-					
-					theOutputSet.setSideSize(1, side1FontSize);
-					theOutputSet.setSideSize(2, side2FontSize);
-					theOutputSet.setSideSize(3, side3FontSize);
-					
-					// Get the data for each card.
-					
-					for (int i = 0; i < theCardList.size(); i++)
-					{
-						CardInfo	tCard = theCardList.get(i);
-						
-						theOutputSet.appendCard(tCard.getCardSide1Text(), tCard.getCardSide2Text(), tCard.getCardSide3Text());
-					}
-					
-					// Verify that the number of cards in the output set is the same as the number of cards
-					// in theCardList.
-					
-					if (theCardList.size() != theOutputSet.getNumCards())
-						throw new Error ("CardSetEditorDialog.doSaveFile () detected theCardList.size () != theOutputSet.getNumCards().");
-										
-					// Create a DOM writer and attempt to write to the file.
-					
-					try
-					{
-						EditorDOM theDOM = new EditorDOM ();
-						theDOM.writeCardSet(saveFileName, theOutputSet);
-					}
-					catch (Exception e)
-					{
-						AsianFlash.theCardSetEditor.firePropertyChange("SaveComplete", "Starting", "Failure");
-						return;
-					}
-					
-					// Set final status.
-					
-					AsianFlash.theCardSetEditor.firePropertyChange("SaveComplete", "Starting", "Success");
-				}
-			});
 		}
+			
+		// If control reaches this point, there should be a file to which we can save the contents of
+		// the card set. However, check just in case and throw an error if there is not.
+			
+		if (saveFileName == null)
+			throw new Error ("CardSetEditorDialog.doSaveFile () detected null saveFileName.");
+			
+		// Indicate that a save is being performed and set the rolling cursor.
+			
+		doingSave = true;
+		adjustControls ();
+		AsianFlash.mainFrame.setCursor(Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR));
+		setCursor(Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR));
+	
+		// Save the game into the file as a background task.
+			
+		SwingUtilities.invokeLater(new Runnable ()
+		{
+			public void run ()
+			{
+				// Set initial status.
+				
+				AsianFlash.theCardSetEditor.firePropertyChange("SaveComplete", null, "Starting");
+				
+				// Build a EditableCardSet for the card set.
+				
+				EditableCardSet	theOutputSet = new EditableCardSet ();
+				
+				// Get the common data for the set.
+				
+				theOutputSet.setSideTitle(1, cardSidePanelArray[0].getCardSideTitle ());
+				theOutputSet.setSideTitle(2, cardSidePanelArray[1].getCardSideTitle ());
+				theOutputSet.setSideTitle(3, cardSidePanelArray[2].getCardSideTitle ());
+				
+				theOutputSet.setSideFont(1, side1FontFamily);
+				theOutputSet.setSideFont(2, side2FontFamily);
+				theOutputSet.setSideFont(3, side3FontFamily);
+				
+				theOutputSet.setSideSize(1, side1FontSize);
+				theOutputSet.setSideSize(2, side2FontSize);
+				theOutputSet.setSideSize(3, side3FontSize);
+				
+				// Get the data for each card.
+				
+				for (int i = 0; i < theCardList.size(); i++)
+				{
+					CardInfo	tCard = theCardList.get(i);
+					
+					theOutputSet.appendCard(tCard.getCardSide1Text(), tCard.getCardSide2Text(), tCard.getCardSide3Text());
+				}
+				
+				// Verify that the number of cards in the output set is the same as the number of cards
+				// in theCardList.
+				
+				if (theCardList.size() != theOutputSet.getNumCards())
+					throw new Error ("CardSetEditorDialog.doSaveFile () detected theCardList.size () != theOutputSet.getNumCards().");
+									
+				// Create a DOM writer and attempt to write to the file.
+				
+				try
+				{
+					EditorDOM theDOM = new EditorDOM ();
+					theDOM.writeCardSet(saveFileName, theOutputSet);
+				}
+				catch (Exception e)
+				{
+					AsianFlash.theCardSetEditor.firePropertyChange("SaveComplete", "Starting", "Failure");
+					return;
+				}
+					
+				// Set final status.
+				
+				AsianFlash.theCardSetEditor.firePropertyChange("SaveComplete", "Starting", "Success");
+			}
+		});
 	}
 	
 	private void doOpenCardSet ()
@@ -1249,7 +1327,8 @@ public class CardSetEditorDialog extends JFrame implements ActionListener, Prope
 						saveFileName = theFilesToOpen[0].getPath();
 					else
 						saveFileName = null;
-					
+					fileNameEditorPane.setText(saveFileName);
+
 					// Make the new card list the current card list and display the first card in the 
 					// dialog.
 					
@@ -1262,11 +1341,61 @@ public class CardSetEditorDialog extends JFrame implements ActionListener, Prope
 				catch (Exception e)
 				{
 					saveFileName = null;
+					fileNameEditorPane.setText(saveFileName);
 					AsianFlash.theCardSetEditor.firePropertyChange("OpenComplete", "Starting", "Failure");		
 					return;
 				}
 			}
 		});
+	}
+	
+	/**
+	 * This method closes a card set, first checking if it needs to be saved.
+	 */
+	private void doCloseCardSet ()
+	{
+		if (dirtyFlag)
+		{
+			int saveResult = JOptionPane.showConfirmDialog(null, "There are unsaved changes.\nDo you want to save them first?", 
+					"Save Changes?", JOptionPane.YES_NO_CANCEL_OPTION);
+			
+			switch (saveResult)
+			{
+				case JOptionPane.YES_OPTION:
+					queueClose ();
+					doSaveFile (false);
+					return;
+				case JOptionPane.NO_OPTION:
+					break;
+				case JOptionPane.CANCEL_OPTION:
+					return;
+				default:
+					throw new Error ("CardSetEditorDialog.doCloseCardSet () detected showConfirmDialog () returned and invalid result (" + saveResult + ").");
+			}
+		}
+		
+		// Clear the save file name so the existing file does not get overwritten.
+		
+		saveFileName = null;
+		fileNameEditorPane.setText(saveFileName);
+
+		// At this point, there is a clean (i.e. no unsaved changes) file, so free up the card set.
+		
+		theCardList = null;		
+		buildSidePanels ();
+		createEmptyCard(1);
+		dirtyFlag = false;
+		adjustControls();
+	}
+	
+	private void doHelpItem ()
+	{
+		theHelpDialog = new EditorHelpDialog (this);
+		if (theHelpDialog != null)
+		{
+			theHelpDialog = null;
+			editorHelpItem.setEnabled(false);
+		}
 	}
 
 	/**
@@ -1313,6 +1442,29 @@ public class CardSetEditorDialog extends JFrame implements ActionListener, Prope
 	{
 		openQueued = false;
 		adjustControls ();
+	}
+	
+	/**
+	 * This method queues up a close of a card set.
+	 */
+	private void queueClose ()
+	{
+		closeQueued = true;
+		adjustControls ();
+	}
+	
+	/**
+	 * This method dequeues a close operation.
+	 */
+	private void dequeueClose ()
+	{
+		closeQueued = false;
+		adjustControls ();
+	}
+	
+	public void enableHelpItem ()
+	{
+		editorHelpItem.setEnabled(true);
 	}
 	
 	/* (non-Javadoc)
@@ -1367,14 +1519,14 @@ public class CardSetEditorDialog extends JFrame implements ActionListener, Prope
 		
 		// Handle opening a card set.
 		
-		if (source == this.openCardSetItem)
+		if (source == openCardSetItem)
 		{
 			doOpenCardSet ();
 		}
 		
 		// Handle save and save as menu items.
 		
-		if (source == this.saveCardSetItem)
+		if (source == saveCardSetItem)
 		{
 			doSaveFile (false);
 		}
@@ -1382,6 +1534,13 @@ public class CardSetEditorDialog extends JFrame implements ActionListener, Prope
 		if (source == saveCardSetAsItem)
 		{
 			doSaveFile (true);
+		}
+		
+		// Handle close card set.
+		
+		if (source == closeCardSetItem)
+		{
+			doCloseCardSet ();
 		}
 		
 		// Handle quit editor menu item.
@@ -1396,6 +1555,13 @@ public class CardSetEditorDialog extends JFrame implements ActionListener, Prope
 		if (source == quitItem)
 		{
 			doQuit ();
+		}
+		
+		// Handle the editor help.
+		
+		if (source == editorHelpItem)
+		{
+			doHelpItem ();
 		}
 	}
 
@@ -1413,6 +1579,7 @@ public class CardSetEditorDialog extends JFrame implements ActionListener, Prope
 			
 			if (theValue == "Success")
 			{
+				System.out.println("SaveComplete - Success");
 				AsianFlash.mainFrame.setCursor(Cursor.getPredefinedCursor(Cursor.DEFAULT_CURSOR));
 				setCursor(Cursor.getPredefinedCursor(Cursor.DEFAULT_CURSOR));
 				dirtyFlag = false;
@@ -1435,6 +1602,12 @@ public class CardSetEditorDialog extends JFrame implements ActionListener, Prope
 					doOpenCardSet ();
 					return;
 				}
+				if (closeQueued)
+				{
+					dequeueClose ();
+					doCloseCardSet ();
+					return;
+				}
 				adjustControls ();
 				return;
 			}
@@ -1446,6 +1619,7 @@ public class CardSetEditorDialog extends JFrame implements ActionListener, Prope
 				JOptionPane.showMessageDialog(null, "Error: could not write to file " + saveFileName + this.saveErrorString, "Error Saving Cardset", JOptionPane.OK_OPTION);
 				dequeueQuits();
 				dequeueOpen ();
+				dequeueClose ();
 				return;
 			}
 			return;
@@ -1481,9 +1655,8 @@ public class CardSetEditorDialog extends JFrame implements ActionListener, Prope
 	 * @see java.awt.event.WindowListener#windowOpened(java.awt.event.WindowEvent)
 	 */
 	@Override
-	public void windowOpened(WindowEvent e) {
-		// TODO Auto-generated method stub
-
+	public void windowOpened(WindowEvent e) 
+	{
 	}
 
 	/* (non-Javadoc)
@@ -1504,44 +1677,38 @@ public class CardSetEditorDialog extends JFrame implements ActionListener, Prope
 	@Override
 	public void windowClosed(WindowEvent e) 
 	{
-		// TODO Auto-generated method stub
-
 	}
 
 	/* (non-Javadoc)
 	 * @see java.awt.event.WindowListener#windowIconified(java.awt.event.WindowEvent)
 	 */
 	@Override
-	public void windowIconified(WindowEvent e) {
-		// TODO Auto-generated method stub
-
+	public void windowIconified(WindowEvent e) 
+	{
 	}
 
 	/* (non-Javadoc)
 	 * @see java.awt.event.WindowListener#windowDeiconified(java.awt.event.WindowEvent)
 	 */
 	@Override
-	public void windowDeiconified(WindowEvent e) {
-		// TODO Auto-generated method stub
-
+	public void windowDeiconified(WindowEvent e) 
+	{
 	}
 
 	/* (non-Javadoc)
 	 * @see java.awt.event.WindowListener#windowActivated(java.awt.event.WindowEvent)
 	 */
 	@Override
-	public void windowActivated(WindowEvent e) {
-		// TODO Auto-generated method stub
-
+	public void windowActivated(WindowEvent e) 
+	{
 	}
 
 	/* (non-Javadoc)
 	 * @see java.awt.event.WindowListener#windowDeactivated(java.awt.event.WindowEvent)
 	 */
 	@Override
-	public void windowDeactivated(WindowEvent e) {
-		// TODO Auto-generated method stub
-
+	public void windowDeactivated(WindowEvent e) 
+	{
 	}
 
 }

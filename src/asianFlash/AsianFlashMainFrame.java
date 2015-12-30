@@ -1,6 +1,8 @@
 package asianFlash;
 
 import java.awt.*;
+import java.awt.event.WindowEvent;
+import java.awt.event.WindowListener;
 
 import javax.swing.*;
 
@@ -35,9 +37,16 @@ import javax.swing.*;
 //	20140704	DEReese				Added code to create a GlobalKeyEventDispatcher object and add
 //									it to the current keyboard focus manager (bug #000037).
 //	20151127	DEReese				Added GPL information (bug 000047).
+//	20151229	DEReese				Set class to implement WindowListener. In windowClosing () added code
+//									to see if AsianFlash.theCardSetEditor is non-null. If so, then call
+//									CardSetEditorDialog.doQuit () to handle quitting the program, since it
+//									is possible that there are unsaved changes that the user should save
+//									or discard. Changed default close operation to "do nothing", since
+//									windowsClosing () will handle it (bug 000051).
 //
 
-public class AsianFlashMainFrame extends JFrame {
+public class AsianFlashMainFrame extends JFrame implements WindowListener
+{
 	
 	/**
 	 * Version ID.
@@ -78,17 +87,19 @@ public class AsianFlashMainFrame extends JFrame {
 		
 		// Set the close operation.
 		
-		this.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+		setDefaultCloseOperation(JFrame.DO_NOTHING_ON_CLOSE);
 		
 		// Set window attributes.
 		
-		this.setSize(width, height);
-		this.setLocation(xLoc, yLoc);
-		this.setResizable(true);
+		setSize(width, height);
+		setLocation(xLoc, yLoc);
+		setResizable(true);
+		addWindowListener(this);
 		
 		// Set the layout.
+		
 		theLayout = new BorderLayout ();
-		this.setLayout(theLayout);
+		setLayout(theLayout);
 		
 		// Set up the main menu bar in the "NORTH" area of the frame.
 		
@@ -134,7 +145,56 @@ public class AsianFlashMainFrame extends JFrame {
 		
 		// Make visible.
 		
-		this.setVisible(true);
+		setVisible(true);
+		
+	}
+
+	@Override
+	public void windowOpened(WindowEvent e) 
+	{
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void windowClosing(WindowEvent e) 
+	{
+		if (AsianFlash.theCardSetEditor != null)
+		{
+			AsianFlash.theCardSetEditor.doQuit();
+			return;
+		}
+		System.exit(0);
+
+	}
+
+	@Override
+	public void windowClosed(WindowEvent e) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void windowIconified(WindowEvent e) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void windowDeiconified(WindowEvent e) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void windowActivated(WindowEvent e) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void windowDeactivated(WindowEvent e) {
+		// TODO Auto-generated method stub
 		
 	}
 }

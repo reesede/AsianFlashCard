@@ -13,9 +13,9 @@ import java.io.*;
 import javax.swing.*;
 
 /**
- * This class implements a dialog in which the program's help file is displayed.
+ * This class implements an abstract dialog in which the program's help files can be displayed.
  * @author David E. Reese
- * @version 4.1
+ * @version 5.0
  *
  */
 
@@ -50,25 +50,19 @@ import javax.swing.*;
 //	20151128	DEReese				Added GPL information (bug 000047).
 //									Fixed resizing problem by changing from GridBagLayout to null layout and
 //									setting the location of items directly (bug 000048).
+//	20151228	DEReese				Changed from having a fixed file name to having the file name passed
+//									as a parameter to allow separate dialogs for the general application
+//									help and the editor help. Renamed from HelpDialog to AbstractHelpDialog
+//									and made into an abstract class (bug 000051).
 //
 
-public class HelpDialog extends JDialog implements ActionListener, WindowListener {
+public abstract class AbstractHelpDialog extends JDialog implements ActionListener, WindowListener {
 
 	/**
 	 * Version ID.
 	 */
 	public static final long serialVersionUID = 1L;
 	
-	/**
-	 * Title of Window.
-	 */
-	private static String windowTitle = new String ("AsianFlashCard Help Text");
-	
-	/**
-	 * Name of readme file.
-	 */
-	private static String readmeFileName = new String ("/resources/README.txt");
-
 	/**
 	 * Horizontal location of frame.
 	 */
@@ -102,18 +96,24 @@ public class HelpDialog extends JDialog implements ActionListener, WindowListene
 	/**
 	 * Button to close the window.
 	 */
-	private JButton closeButton;
+	protected JButton closeButton;
 	
 	/**
 	 * Constructor for help dialog class.
 	 */
-	public HelpDialog ()
+
+	/**
+	 * This method displays the help dialog and displays the given help file in the dialog.
+	 * @param dialogTitle	Title of the dialog.
+	 * @param helpFileName	Name of the file containing the help text.
+	 */
+	public AbstractHelpDialog (String dialogTitle, String helpFileName)
 	{
 		// Call the super class constructor and set the window title.
 		
 		super ();
 		
-		setTitle (windowTitle);
+		setTitle (dialogTitle);
 		
 		// Set window attributes.
 		
@@ -156,7 +156,7 @@ public class HelpDialog extends JDialog implements ActionListener, WindowListene
 		BufferedReader	theReader;
 		try
 		{
-			InputStream theStream = getClass().getResourceAsStream(readmeFileName);
+			InputStream theStream = getClass().getResourceAsStream(helpFileName);
 			theReader = new BufferedReader (new InputStreamReader (theStream));
 		}
 		catch (Exception e)
@@ -203,23 +203,15 @@ public class HelpDialog extends JDialog implements ActionListener, WindowListene
 		setVisible (true);
 		
 		addWindowListener (this);
-}
+		
+	}
 	
 	/* (non-Javadoc)
 	 * @see java.awt.event.ActionListener#actionPerformed(java.awt.event.ActionEvent)
 	 */
 	@Override
-	public void actionPerformed(ActionEvent e) {
-		Object source = e.getSource();
-		
-		if (source == closeButton)
-		{
-			setVisible (false);
-			dispose ();
-			AsianFlash.theMainMenuPanel.enableHelpItem();
-			return;
-		}
-
+	public void actionPerformed(ActionEvent e) 
+	{
 	}
 
 	@Override

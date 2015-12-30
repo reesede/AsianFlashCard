@@ -5,7 +5,7 @@ This is the README.txt file for the AsianFlashCard program.
 ====================
 1.	TABLE OF CONTENTS
 2.	PROGRAM INFORMATION
-3.  COPYRIGHT
+3.	COPYRIGHT
 4.	GENERAL
 5.	REQUIREMENTS
 6.	INSTALLATION

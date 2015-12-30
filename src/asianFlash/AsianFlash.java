@@ -14,7 +14,7 @@ import cardseteditor.CardSetEditorDialog;
  * This is the main class for the Asian Flash Card program. It contains the main () routine and all global
  * objects used by the program.
  * @author David E. Reese
- * @version	4.1
+ * @version	5.0
  *
  */
 //Copyright 2013-2015 David E. Reese
@@ -265,6 +265,7 @@ public class AsianFlash {
 		{
 				public void run ()
 				{
+					
 					CardSetEditorDialog.determineFontFamilyNames();
 				}
 		};

@@ -21,6 +21,7 @@ import javax.swing.JTextPane;
 import javax.swing.event.DocumentEvent;
 import javax.swing.event.DocumentListener;
 import javax.swing.text.DefaultStyledDocument;
+import javax.swing.text.Document;
 import javax.swing.text.Style;
 import javax.swing.text.StyleConstants;
 import javax.swing.text.StyleContext;
@@ -158,6 +159,12 @@ public class CardEditorCardSidePanel extends JPanel implements ActionListener, D
 	private StyledDocument theDocument;
 	
 	/**
+	 * Indicates that the initial changeUpdate () call for the document is to be ignored for purposes
+	 * of marking the edited card set as dirty.
+	 */
+	private boolean ignoreInitialDocChange;
+	
+	/**
 	 * Constructor which creates an empty (default) panel for a card side.
 	 * @param theCardSide	Side of the card (must be 1-3).
 	 * @throws Error		Thrown if theCardSide is out of bounds.
@@ -212,6 +219,7 @@ public class CardEditorCardSidePanel extends JPanel implements ActionListener, D
 		sideTitleTextField.setEnabled(true);
 		sideTitleTextField.setEditable(true);
 		sideTitleTextField.setHorizontalAlignment(JTextField.CENTER);
+		sideTitleTextField.getDocument().addDocumentListener(this);
 		add(sideTitleTextField);
 		
 		// Add the side font combo box and label. Note that the CardSetEditorDialog should set up the
@@ -297,15 +305,6 @@ public class CardEditorCardSidePanel extends JPanel implements ActionListener, D
 	}
 	
 	/**
-	 * This method returns a pointer to the document from the text pane for the side.
-	 * @return	Document for the side being edited.
-	 */
-	public StyledDocument getTheDocument ()
-	{
-		return (StyledDocument)theTextPane.getDocument();
-	}
-	
-	/**
 	 * This method sets the document containing the side text in the side panel and displays it.
 	 * @param theDoc	Document containing text to be displayed in the side.
 	 * @throws Error	Thrown if theDoc is null.
@@ -320,13 +319,23 @@ public class CardEditorCardSidePanel extends JPanel implements ActionListener, D
 		if (theDocument != null)
 			theDoc.removeDocumentListener(this);
 		
-		// Add the document to the text pane.
+		// Add the document to the text pane, set the cursor position, and repaint it.
 		
 		theTextPane.setDocument(theDoc);
-		theDoc.addDocumentListener(this);
-		theTextPane.repaint();
 		theTextPane.setCaretPosition(theDoc.getLength());
+		theTextPane.repaint();
+
+		// Save the document for temporary use.
+		
 		theDocument = theDoc;
+		
+		// Indicate that the first changedUpdate event should be ignored.
+		
+		ignoreInitialDocChange = true;
+		
+		// Set the document listener for the document to this object.
+		
+		theDoc.addDocumentListener(this);
 	}
 	
 	/**
@@ -344,7 +353,9 @@ public class CardEditorCardSidePanel extends JPanel implements ActionListener, D
 	 */
 	public void setCardSideTitle (String theTitle)
 	{
+		sideTitleTextField.getDocument().removeDocumentListener(this);
 		sideTitleTextField.setText(theTitle);
+		sideTitleTextField.getDocument().addDocumentListener(this);
 	}
 	
 	/**
@@ -445,6 +456,8 @@ public class CardEditorCardSidePanel extends JPanel implements ActionListener, D
 	@Override
 	public void insertUpdate(DocumentEvent e) 
 	{
+		// If an insert occurred to the card side or title, set the card set editor's dirty flag.
+		
 		if (AsianFlash.theCardSetEditor != null)
 			AsianFlash.theCardSetEditor.setDirtyFlag();
 	}
@@ -455,6 +468,8 @@ public class CardEditorCardSidePanel extends JPanel implements ActionListener, D
 	@Override
 	public void removeUpdate(DocumentEvent e) 
 	{
+		// If a remove occurred to the card side text or title, set the card set editor's dirty flag.
+		
 		if (AsianFlash.theCardSetEditor != null)
 			AsianFlash.theCardSetEditor.setDirtyFlag();
 	}
@@ -465,8 +480,25 @@ public class CardEditorCardSidePanel extends JPanel implements ActionListener, D
 	@Override
 	public void changedUpdate(DocumentEvent e) 
 	{
+		Document sourceDoc = e.getDocument();
+		
+		// If a change occurred, set the card set editor's dirty flag. However, a changedUpdate event
+		// is generated when the document is installed in the text panel, and this must be ignored (or
+		// the card set will be marked dirty erroneously. When the document was put into the panel, the
+		// ignoreInitialDocChange was set to true. If it is true, change it to false. If it was false
+		// initially, set the dirty flag for the editor to indicate that some change has occurred to
+		// the document.
+			
 		if (AsianFlash.theCardSetEditor != null)
-			AsianFlash.theCardSetEditor.setDirtyFlag();
+		{
+			if (sourceDoc == theDocument)
+			{
+				if (ignoreInitialDocChange)
+					ignoreInitialDocChange = false;
+				else
+					AsianFlash.theCardSetEditor.setDirtyFlag();
+			}
+		}
 	}
 
 }

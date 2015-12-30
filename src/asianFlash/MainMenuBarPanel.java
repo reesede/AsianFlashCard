@@ -17,7 +17,7 @@ import cardseteditor.CardSetEditorDialog;
 /**
  * This class creates a panel containing a menu bar. It also contains all global static variables and constants.
  * @author David E. Reese
- * @version 4.1
+ * @version 5.0
  *
  */
 
@@ -70,7 +70,7 @@ import cardseteditor.CardSetEditorDialog;
 //	20130410	DEReese				Fixed copyright date (bug_000003).
 //	20130412	DEReese				Commented out aboutString and call to showMessageDialog ().
 //									Uncommented out call to AboutDialog() (bug 000004).
-//	20130413	DEReese				Added helpItem, which sets up a HelpDialog object.
+//	20130413	DEReese				Added helpItem, which sets up a AbstractHelpDialog object.
 //									Added helpItem to actionListener (bug 000005).
 //	20130416	DEReese				Added statisticsItem to Test menu and to actionListener. Added
 //									enableShowStatsItem() and disableShowStatsItem() (bug 000006).
@@ -112,6 +112,10 @@ import cardseteditor.CardSetEditorDialog;
 //	20151211	DEReese				Put call to constructor for CardSetEditorDialog in SwingUtilities.invokeLater ()
 //									and changed the cursor to a rotating cursor, since it can take time for the
 //									CardSetEditorDialog to find the system font families (bug 000051).
+//	20151228	DEReese				Changed doHelpItem () to call the AbstractHelpDialog constructor with strings
+//									for the title and help file name (bug 000051).
+//	20151229	DEReese				Modified doQuitItem () to call the CardSetEditorDialog doQuit () method
+//									if AsianFlash.theCardSetEditor is non-null (bug 000051).
 //
 
 public class MainMenuBarPanel extends JPanel implements ActionListener
@@ -419,7 +423,7 @@ public class MainMenuBarPanel extends JPanel implements ActionListener
 			doEditCardSetItem (e);
 		}
 		
-		// Process "Help" menu item by displaying a HelpDialog object.
+		// Process "Help" menu item by displaying a AbstractHelpDialog object.
 		
 		if (source == helpItem)
 		{
@@ -796,16 +800,11 @@ public class MainMenuBarPanel extends JPanel implements ActionListener
 	 */
 	private void doQuitItem (ActionEvent e)
 	{
-		// If the statistics dialog is open, destroy it and enable the menu item that displays the
-		// statistics dialog.
-
-		if (AsianFlash.theStatisticsDisplayDialog != null)
+		if (AsianFlash.theCardSetEditor != null)
 		{
-			AsianFlash.theStatisticsTable = null;
-			AsianFlash.theStatisticsDisplayDialog.dispose();
-			AsianFlash.theStatisticsDisplayDialog = null;
+			AsianFlash.theCardSetEditor.doQuit();
+			return;
 		}
-		
 		System.exit(0);
 	}
 	
@@ -815,7 +814,7 @@ public class MainMenuBarPanel extends JPanel implements ActionListener
 	 */
 	private void doHelpItem (ActionEvent e)
 	{
-		HelpDialog theHelpDialog = new HelpDialog ();
+		MainHelpDialog theHelpDialog = new MainHelpDialog (this);
 		if (theHelpDialog != null)
 			theHelpDialog = null;
 		disableHelpItem ();
