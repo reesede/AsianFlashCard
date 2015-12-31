@@ -59,7 +59,7 @@ Fixed resizing problems with help and about dialogs by removing GridBagLayouts a
 
 Surrounded calls to "long" activities with calls to SwingUtilities.invokeLater () (bug 000049).
 
-xxxx-xx-xx (will add date when ready to merge)
+2015-12-31
 v5.0
 David E. Reese
 Fork new branch for v5.0 build, integration, and test (bug 000052).
