@@ -10,8 +10,8 @@ This is the help file for Card Set Editor tool for the AsianFlashCard program.
 5.	NAVIGATION
 6.	MENU ITEMS
 
-2.	TOOL INFORMATION
-====================
+2. TOOL INFORMATION
+===================
 
 Card Set Editor for AsianFlashCard
 Implemented as part of AsianFlashCard.jar
@@ -19,8 +19,8 @@ This file was last updated in v5.0.
 Copyright 2012-2015, David E. Reese
 
 
-3.	LICENSE
-===========
+3. LICENSE
+==========
 
 This file is part of AsianFlashCard.
 
@@ -38,8 +38,8 @@ You should have received a copy of the GNU General Public License
 along with AsianFlashCard.  If not, see <http://www.gnu.org/licenses/>.
 
 
-4.	GENERAL
-===========
+4. GENERAL
+==========
 
 The card set editor allows the user to create and edit text files for the
 AsianFlashCard application. When first invoked, the editor will come up
@@ -55,8 +55,8 @@ into cards, although the editor does not display this content, but merely
 displays the HTML code.
 
 
-5.	NAVIGATION
-==============
+5. NAVIGATION
+=============
 
 In addition to the menu bar (which will be detailed below), the dialog for the
 card set editor consists of the following components:
@@ -127,8 +127,8 @@ Side X Text
 	tag from HTML.
 	
 
-6.	MENU ITEMS
-==============
+6. MENU ITEMS
+=============
 
 File -> New
 
