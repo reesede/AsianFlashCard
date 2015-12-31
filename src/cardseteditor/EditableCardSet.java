@@ -211,7 +211,7 @@ public class EditableCardSet
 	/**
 	 * This method sets the font size for a side of the cards in the card set.
 	 * @param theSide	Number of the side (1-3).
-	 * @param theFont	Font size of the side.
+	 * @param theSize	Font size of the side.
 	 * @throws Error	Thrown if theSide not in the range 1..3.
 	 */
 	public void setSideSize (int theSide, String theSize) throws Error

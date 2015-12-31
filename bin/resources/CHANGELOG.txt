@@ -65,3 +65,4 @@ David E. Reese
 Fork new branch for v5.0 build, integration, and test (bug 000052).
 
 Fixed "Append" command not working (bug 000050).
+Added basic card set editor (bug 000051).

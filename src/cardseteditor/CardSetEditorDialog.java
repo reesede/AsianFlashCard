@@ -486,7 +486,7 @@ public class CardSetEditorDialog extends JFrame implements ActionListener, Prope
 		
 		// Set up the next card button.
 		
-		nextCardButton = new JButton ("Next Card");
+		nextCardButton = new JButton ("Next Card >");
 		nextCardButton.setBounds(nextCardButtonBounds);
 		nextCardButton.addActionListener(this);
 		nextCardButton.setEnabled(false);

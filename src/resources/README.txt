@@ -5,7 +5,7 @@ This is the README.txt file for the AsianFlashCard program.
 ====================
 1.	TABLE OF CONTENTS
 2.	PROGRAM INFORMATION
-3.	COPYRIGHT
+3.	LICENSE
 4.	GENERAL
 5.	REQUIREMENTS
 6.	INSTALLATION
@@ -23,8 +23,8 @@ AsianFlashCard.jar
 Version 5.0 (unstable)
 Copyright 2012-2015, David E. Reese
 
-3. COPYRIGHT
-============
+3. LICENSE
+==========
 
 This file is part of AsianFlashCard.
 
@@ -178,6 +178,13 @@ Tools -> Show Scratchpad
 	The dialog "Close" button closes the dialog; the dialog "Clear" button clears
 	the drawing, but keeps the dialog open. Note that closing the dialog also
 	clears the drawing.
+	
+Tools -> Open Card Set Editor
+
+	Displays the card set editor dialog, which allows the user to create and
+	edit files containing card sets. For more details, see the card set editor
+	help by bringing up the card set editor and selecting the Help->Editor Help
+	menu command.
 
 Help -> Help
 

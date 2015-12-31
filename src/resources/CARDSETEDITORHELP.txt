@@ -1,0 +1,187 @@
+This is the help file for Card Set Editor tool for the AsianFlashCard program.
+
+1. TABLE OF CONTENTS
+====================
+
+1.	TABLE OF CONTENTS
+2.	TOOL INFORMATION
+3.	LICENSE
+4.	GENERAL
+5.	NAVIGATION
+6.	MENU ITEMS
+
+2.	TOOL INFORMATION
+====================
+
+Card Set Editor for AsianFlashCard
+Implemented as part of AsianFlashCard.jar
+This file was last updated in v5.0.
+Copyright 2012-2015, David E. Reese
+
+
+3.	LICENSE
+===========
+
+This file is part of AsianFlashCard.
+
+AsianFlashCard is free software: you can redistribute it and/or modify
+it under the terms of the GNU General Public License as published by
+the Free Software Foundation, either version 3 of the License, or
+(at your option) any later version.
+
+AsianFlashCard is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU General Public License for more details.
+
+You should have received a copy of the GNU General Public License
+along with AsianFlashCard.  If not, see <http://www.gnu.org/licenses/>.
+
+
+4.	GENERAL
+===========
+
+The card set editor allows the user to create and edit text files for the
+AsianFlashCard application. When first invoked, the editor will come up
+with an empty card set. The user can open existing card sets, add cards,
+delete cards, and edit the contents of cards. Finally, the user can save
+card sets to files.
+
+Currently, the card set editor does not implement decoration of text (such
+as bold, italics, underline, etc.). However, these features can be added to
+text by using HTML tags (i.e., <B>some bolded text</B> to add bolds). In
+addition, the user can use HTML tags to insert images and other HTML content
+into cards, although the editor does not display this content, but merely
+displays the HTML code.
+
+
+5.	NAVIGATION
+==============
+
+In addition to the menu bar (which will be detailed below), the dialog for the
+card set editor consists of the following components:
+
+Card Set File Name
+
+	Contains the name of the file which has been opened and to which changes will
+	be saved with the Save menu command. This can be changed by opening a new file
+	or by saving the card set to a different file with the menu Save As command.
+
+Card ID
+
+	This field indicates the card in the set being edited. It reads "Card #n of m"
+	where "n" is the number of the card being displayed and "m" is the number of
+	cards in the card set being edited.
+
+< Prev. Card
+
+	Clicking this button displays the previous card in the card set. It is disabled when
+	the first card is being displayed.
+	
+Next Card >
+
+	Clicking this button displays the next card in the card set. It is disabled when the
+	last card is being displayed.
+	
+New Card
+
+	Clicking this button creates a new card at the end of the card set and displays that
+	new card.
+
+Delete Card
+
+	Clicking this button deletes a card from the set. A dialog is brought up asking the user
+	to confirm that they want to delete the card. Clicking "Yes" deletes the card; clicking
+	"No" does not delete the card. Note that it is not possible to delete the only card in
+	the card set.
+	
+Each of the three card sides has a separate editing panel. These each have the following
+fields:
+
+Side X Title
+
+	Contains the title of the card side. This is a editable text field and can be changed
+	as needed. Note that the title applies to ALL cards in the card set; it is not changeable
+	on a per-card basis.
+
+Side X Font
+
+	Contains the font to be used for the card side. This is a combo box containing all of
+	the fonts that the program could find on the system. Note that the font applies to ALL
+	cards in the card set; it is not changeable on a per-card basis. However, it is possible
+	to change the font of the side of an individual card by using the HTML <FONT></FONT> tags.
+
+Side X Font Size
+
+	Contains the size of the font used for the card side. This is a combo box containing all
+	of the font sizes available. Note that the font size applies to ALL cards in the card set;
+	it is not changeable on a per-card basis. However, it is possible to change the font size
+	of the side of an individual card side by using the HTML <FONT></FONT> tags.
+	
+Side X Text
+
+	This field is where the user can enter or edit the text associated with the side of the
+	card being displayed. Text can contain embedded HTML tags to change the decoration, add
+	images, etc. One important thing to note is that carraige returns are not honored by
+	the editor. If a new line is required in the card text, it must be done using the <BR/>
+	tag from HTML.
+	
+
+6.	MENU ITEMS
+==============
+
+File -> New
+
+	Create a new, blank card set for editing. If there are unsaved changes from the current
+	card set, the tool will show a dialog to alert the user to this fact and ask if the
+	unsaved changes should be saved or not. Clicking "Yes" will save the changes; clicking
+	"No" will discard the changes; clicking "Cancel" will cancel the new card set operation.
+	
+File -> Open
+
+	Open an existing card set for editing. If there are unsaved changes from the current
+	card set, the tool will show a dialog to alert the user to this fact and ask if the
+	unsaved changes should be saved or not. Clicking "Yes" will save the changes; clicking
+	"No" will discard the changes; clicking "Cancel" will cancel the open card set operation.
+	Note that it is possible to open multiple card set files. However, the cards from those
+	card set files will be merged into a single card set, which should be saved in its own
+	file. When multiple card set files are opened, the tool does not set up the file into
+	which the card set will be saved.
+
+File -> Close
+
+	Close the open card set. If there are unsaved changes from the current card set, the tool
+	will show a dialog to alert the user to this fact and ask if the unsaved changes should be
+	saved or not. Clicking "Yes" will save the changes; clicking "No" will discard the changes;
+	clicking "Cancel" will cancel the close card set operation.
+
+File -> Save
+
+	Save any unsaved changes to the card set in the file specified for the card set. If there
+	is no file for the card set, the program will bring up a dialog to ask the user for the
+	file name. Clicking "Save" in this dialog saves the cards in the specified file; clicking
+	"Cancel" cancels the save operation. By default, card sets for this tool are saved in files
+	with the ".alfc" extension.
+	
+File -> Save As
+
+	Asks the user for the name of a card set file into which to save the current card set. Clicking
+	"Save" in this dialog saves the cards in the specified file; clicking "Cancel" cancels the save
+	operation. By default, card sets for this tool are saved in files with the ".alfc" extension.
+	
+File -> Quit Card Editor
+
+	Quits the card editor tool, but leaves the AsianFlashCard application running. If there are
+	unsaved changes from the current card set, the tool will show a dialog to alert the user to
+	this fact and ask if the unsaved changes should be saved or not. Clicking "Yes" will save the
+	changes; clicking "No" will discard the changes; clicking "Cancel" will cancel the quit editor
+	operation.
+
+File -> Quit AsianFlashCard
+
+	Quits both the card editor tool and the AsianFlashCard application. If there are
+	unsaved changes from the current card set, the tool will show a dialog to alert the user to
+	this fact and ask if the unsaved changes should be saved or not. Clicking "Yes" will save the
+	changes; clicking "No" will discard the changes; clicking "Cancel" will cancel the quit
+	operation.
+
