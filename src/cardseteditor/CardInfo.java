@@ -1,10 +1,3 @@
-/**
- * This class contains the information about a card that is being edited. This is different from the
- * InternalFlashCard class, which is used for a card in a test.
- * @author David E. Reese
- * @version 5.0
- *
- */
 package cardseteditor;
 
 import javax.swing.text.DefaultStyledDocument;
@@ -13,6 +6,15 @@ import javax.swing.text.StyleConstants;
 import javax.swing.text.StyledDocument;
 
 import asianFlash.AsianFlash;
+
+/**
+ * This class contains the information about a card that is being edited. This is different from the
+ * InternalFlashCard class, which is used for a card in a test.
+ * @author David E. Reese
+ * @version 5.0
+ * @since	5.0
+ *
+ */
 
 //Copyright 2015 David E. Reese
 //

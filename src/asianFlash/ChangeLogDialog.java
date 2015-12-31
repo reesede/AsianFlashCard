@@ -21,8 +21,9 @@ import javax.swing.JScrollPane;
 import javax.swing.JTextArea;
 
 /**
+ * This dialog is called to display the changelog.
  * @author David E. Reese
- * @version	4.1
+ * @version	5.0
  *
  */
 
@@ -50,6 +51,7 @@ import javax.swing.JTextArea;
 //									bar to enable the menu item when the window is closing (bug 000045).
 //									Made dialog free from the main frame (bug 000046).
 //	20151127	DEReese				Added GPL information (bug 000047).
+//	20151231	DEReese				Fixed javadoc.
 
 public class ChangeLogDialog extends JDialog implements ActionListener, WindowListener {
 

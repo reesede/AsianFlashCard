@@ -33,6 +33,7 @@ import asianFlash.AsianFlash;
  * This class contains the panel to display and edit a side of a card.
  * @author David E. Reese
  * @version 5.0
+ * @since	5.0
  *
  */
 

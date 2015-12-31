@@ -3,8 +3,9 @@
  */
 package asianFlash;
 
-import java.awt.BorderLayout;
+import java.awt.Dimension;
 import java.awt.GridLayout;
+import java.awt.Rectangle;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.ItemEvent;
@@ -14,13 +15,14 @@ import java.awt.event.WindowListener;
 
 import javax.swing.JButton;
 import javax.swing.JCheckBox;
-import javax.swing.JDialog;
+import javax.swing.JFrame;
 import javax.swing.JPanel;
+import javax.swing.JScrollPane;
 
 /**
  * This class contains the panel on which the user can draw things.
  * @author David E. Reese
- * @version 4.1
+ * @version 5.0
  *
  */
 
@@ -45,9 +47,12 @@ import javax.swing.JPanel;
 // History:
 //	20141208	DEReese				Creation (bug 000043).
 //	20151127	DEReese				Added GPL information (bug 000047).
+//	20151208	DEReese				Changed JDialog to JFrame as extension. Deleted xLoc, yLoc and
+//									replaced with dialogBounds. Added dialogBounds, scratchPadBounds,
+//									buttonPanelBounds, mainPanelBounds (bug 000053).
 //
 
-public class ScratchPadDialog extends JDialog implements ActionListener, ItemListener,
+public class ScratchPadDialog extends JFrame implements ActionListener, ItemListener,
 		WindowListener {
 
 	/**
@@ -61,14 +66,24 @@ public class ScratchPadDialog extends JDialog implements ActionListener, ItemLis
 	private static String windowTitle = new String ("AsianFlashCard Scratch Pad");
 	
 	/**
-	 * Horizontal location of frame.
+	 * Initial boundaries for the dialog.
 	 */
-	private static final int xLoc = 250;
+	private static final Rectangle dialogBounds = new Rectangle (250, 250, 700, 350);
+		
+	/**
+	 * Bounds of the main panel.
+	 */
+	private static final Rectangle mainPanelBounds = new Rectangle (0, 0, 670, 320);
 	
 	/**
-	 * Vertical location of frame.
+	 * Bounds for the scratch pad.
 	 */
-	private static final int yLoc = 250;
+	private static final Rectangle scratchPadBounds = new Rectangle (0, 0, 670, 270);
+	
+	/**
+	 * Bounds for button panel.
+	 */
+	private static final Rectangle buttonPanelBounds = new Rectangle (5, 275, 655, 20);
 	
 	/**
 	 * Clear button.
@@ -102,24 +117,28 @@ public class ScratchPadDialog extends JDialog implements ActionListener, ItemLis
 		
 		// Set window attributes.
 		
-		this.setLocation(xLoc, yLoc);
+		this.setBounds (dialogBounds);
 		this.setResizable(true);
 		
-		// Set up the layout.
+		// Build the main panel.
 		
-		BorderLayout theMainLayout = new BorderLayout ();
-		this.setLayout(theMainLayout);
+		JPanel mainPanel = new JPanel ();
+		mainPanel.setBounds(mainPanelBounds);
+		mainPanel.setPreferredSize(new Dimension(mainPanelBounds.width, mainPanelBounds.height-20));
+		mainPanel.setLayout(null);
 		
 		// Build the drawing panel.
 		
 		drawingPad = new ScratchPad();
-		add (drawingPad, BorderLayout.CENTER);
+		drawingPad.setBounds(scratchPadBounds);
+		mainPanel.add (drawingPad);
 		AsianFlash.theScratchPad = drawingPad;
 				
 		// Build panel with close and clear buttons and button to indicate if window should be cleared
 		// when the next card is selected.
 		
 		JPanel buttonPanel = new JPanel ();
+		buttonPanel.setBounds(buttonPanelBounds);
 		buttonPanel.setLayout(new GridLayout(1,3));
 		
 		// Build and add the Clear button.
@@ -144,13 +163,24 @@ public class ScratchPadDialog extends JDialog implements ActionListener, ItemLis
 		closeButton = new JButton ("Close");
 		closeButton.addActionListener(this);
 		buttonPanel.add(closeButton);
+		mainPanel.add(buttonPanel);
 		
-		// Add the panel containing the buttons to the scratchpad window.
+		// Add the main panel to the scroll pane, and the scroll pane to the window.
 		
-		add(buttonPanel,BorderLayout.SOUTH);
+		JScrollPane theScrollPane = new JScrollPane (mainPanel);
+		theScrollPane.setHorizontalScrollBarPolicy(JScrollPane.HORIZONTAL_SCROLLBAR_ALWAYS);
+		theScrollPane.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_ALWAYS);
+		theScrollPane.setEnabled(true);
+		this.add(theScrollPane);
 		
-		pack ();
+		// Make visible, revalidate, and repaint.
+
 		setVisible (true);
+		
+		revalidate ();
+		repaint ();
+		
+		// Add the created object as its own window listener.
 		
 		addWindowListener (this);
 	}

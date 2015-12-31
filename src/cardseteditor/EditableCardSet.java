@@ -9,6 +9,7 @@ import java.util.ArrayList;
  * This class contains the information which is to be written to a card set file..
  * @author David E. Reese
  * @version 5.0
+ * @since	5.0
  *
  */
 

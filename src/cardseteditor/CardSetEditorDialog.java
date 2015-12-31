@@ -39,6 +39,7 @@ import asianFlash.AbstractHelpDialog;
  * This class contains the dialog which allows the user to edit card sets.
  * @author David E. Reese
  * @version 5.0
+ * @since	5.0
  *
  */
 

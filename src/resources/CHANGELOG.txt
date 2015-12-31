@@ -65,4 +65,7 @@ David E. Reese
 Fork new branch for v5.0 build, integration, and test (bug 000052).
 
 Fixed "Append" command not working (bug 000050).
+
+Converted scratch pad dialog from JDialog to JFrame and added scroll bars (bug 000053).
+
 Added basic card set editor (bug 000051).

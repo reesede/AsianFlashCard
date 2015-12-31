@@ -12,6 +12,7 @@ import asianFlash.AbstractHelpDialog;
  * This class extends AbstractHelpDialog to implement a dialog in which the card set editor's help file is displayed.
  * @author David E. Reese
  * @version 5.0
+ * @since	5.0
  *
  */
 
@@ -43,13 +44,14 @@ public class EditorHelpDialog extends AbstractHelpDialog
 	 */
 	private static final long serialVersionUID = 1L;
 	
+	/**
+	 * Parent dialog which set up the EditorHelpDialog.
+	 */
 	private CardSetEditorDialog	parentDialog;
 
 	/**
 	 * This class extends the AbstractHelpDialog to display the help file for the main application.
-	 * @param theMainMenuBar	Parent main menu bar.
-	 * @param dialogTitle		Title of dialog do be displayed in the dialog window.
-	 * @param helpFileName		Help file to be displayed in the dialog window.
+	 * @param theParentDialog	Parent dialog setting up the help dialog.
 	 */
 	public EditorHelpDialog(CardSetEditorDialog theParentDialog) 
 	{

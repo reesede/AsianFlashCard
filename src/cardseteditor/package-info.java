@@ -5,6 +5,7 @@
  * This package contains the objects for the card set editor.
  * @author David E. Reese
  * @version	5.0
+ * @since	5.0
  *
  */
 

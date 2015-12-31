@@ -41,13 +41,14 @@ public class MainHelpDialog extends AbstractHelpDialog
 	 */
 	private static final long serialVersionUID = 1L;
 	
+	/**
+	 * Main menu bar which set up this dialog.
+	 */
 	private MainMenuBarPanel	mainMenuBar;
 
 	/**
 	 * This class extends the AbstractHelpDialog to display the help file for the main application.
 	 * @param theMainMenuBar	Parent main menu bar.
-	 * @param dialogTitle		Title to be displayed in the dialog window.
-	 * @param helpFileName		Help file to be displayed in the dialog window.
 	 */
 	public MainHelpDialog(MainMenuBarPanel theMainMenuBar) 
 	{
