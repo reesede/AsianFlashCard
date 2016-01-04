@@ -13,16 +13,18 @@ import javax.xml.transform.stream.*;
 
 import org.w3c.dom.*;
 
+import asianFlash.AsianFlash;
+
 /**
  * This class implements the editor document object model, and it provides routines for reading and
  * writing card sets from and to files.
  * @author David E. Reese
- * @version 5.0
+ * @version 5.1
  * @since	5.0
  *
  */
 
-//Copyright 2015 David E. Reese
+//Copyright 2016 David E. Reese
 //
 //This file is part of AsianFlashCard.
 //
@@ -42,10 +44,16 @@ import org.w3c.dom.*;
 
 // History:
 //	20151223	DEReese				Creation (bug 000051).
+//	20160104	DEReese				Added character set to call to the constructor for the PrintWriter.
+//									Converted all strings being printed to the character set defined in
+//									AsianFlash.userParameterData (currently set to "UTF-8"). This was
+//									necessary to handle the fact that Microsoft Windows does not default
+//									to "UTF-8" like Linux (bug 000054).
 //
 
 public class EditorDOM 
 {	
+	private String theCharset;
 	/**
 	 * Default constructor.
 	 */
@@ -61,8 +69,21 @@ public class EditorDOM
 	 */
 	public void writeCardSet (String theFileName, EditableCardSet theCardSet) throws Exception
 	{
-		PrintWriter	outputFile = new PrintWriter (theFileName);
+		// Get the Charset to use.
+		
+		theCharset = AsianFlash.userParameterData.getOutputCharset();
+
+		// Create a new file.
+		
+		PrintWriter	outputFile = new PrintWriter (theFileName, theCharset);
+		
+		// Print the card set.
+		
 		printFlashCardSet (outputFile, theCardSet);
+		
+		// Flush the buffers and close the file.
+		
+		outputFile.flush();
 		outputFile.close();
 		
 	}
@@ -77,7 +98,7 @@ public class EditorDOM
 	{
 		// Print out the opening tag for the FlashCardSet.
 		
-		theWriter.println("<FlashCardSet>");
+		theWriter.println(new String ("<FlashCardSet>".getBytes(), theCharset));
 	
 		// Print out the side information.
 		printSideInformation (theWriter, theCardSet);
@@ -88,7 +109,7 @@ public class EditorDOM
 		
 		// Print out the closing tag for the FlashCardSet.
 		
-		theWriter.println("</FlashCardSet>");
+		theWriter.println(new String ("</FlashCardSet>".getBytes(), theCharset));
 	}
 	
 	/**
@@ -103,29 +124,29 @@ public class EditorDOM
 		
 		// Print out the opening tag.
 		
-		theWriter.println("  <SideInformation>");
+		theWriter.println(new String ("  <SideInformation>".getBytes(), theCharset));
 		
 		// Print out side 1 information.
 		
 		outString = "    <Side1Information title=\"" + theCardSet.getSideTitle(1) + "\" font=\"" +
 				theCardSet.getSideFont(1) + "\" size=\"" + theCardSet.getSideSize(1) + "\"></Side1Information>";
-		theWriter.println(outString);
+		theWriter.println(new String (outString.getBytes(), theCharset));
 		
 		// Print out side 2 information.
 		
 		outString = "    <Side2Information title=\"" + theCardSet.getSideTitle(2) + "\" font=\"" +
 				theCardSet.getSideFont(2) + "\" size=\"" + theCardSet.getSideSize(2) + "\"></Side2Information>";
-		theWriter.println(outString);
+		theWriter.println(new String (outString.getBytes(), theCharset));
 		
 		// Print out side 3 information.
 		
 		outString = "    <Side3Information title=\"" + theCardSet.getSideTitle(3) + "\" font=\"" +
 				theCardSet.getSideFont(3) + "\" size=\"" + theCardSet.getSideSize(3) + "\"></Side3Information>";
-		theWriter.println(outString);
+		theWriter.println(new String (outString.getBytes(), theCharset));
 		
 		// Print out the closing tag.
 		
-		theWriter.println("  </SideInformation>");
+		theWriter.println(new String ("  </SideInformation>".getBytes(), theCharset));
 	}
 	
 	/**
@@ -138,11 +159,11 @@ public class EditorDOM
 	{
 		for (int i = 1; i <= theCardSet.getNumCards(); i++)
 		{
-			theWriter.println("  <FlashCard>");
-			theWriter.println("    <Side1>" + theCardSet.getCardSideText(i, 1) + "</Side1>");
-			theWriter.println("    <Side2>" + theCardSet.getCardSideText(i, 2) + "</Side2>");
-			theWriter.println("    <Side3>" + theCardSet.getCardSideText(i, 3) + "</Side3>");
-			theWriter.println("  </FlashCard>");
+			theWriter.println(new String ("  <FlashCard>".getBytes(), theCharset));
+			theWriter.println(new String (("    <Side1>" + theCardSet.getCardSideText(i, 1) + "</Side1>").getBytes(), theCharset));
+			theWriter.println(new String (("    <Side2>" + theCardSet.getCardSideText(i, 2) + "</Side2>").getBytes(), theCharset));
+			theWriter.println(new String (("    <Side3>" + theCardSet.getCardSideText(i, 3) + "</Side3>").getBytes(), theCharset));
+			theWriter.println(new String ("  </FlashCard>".getBytes(), theCharset));
 		}
 	}
 	

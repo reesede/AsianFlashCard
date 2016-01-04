@@ -73,3 +73,6 @@ Added basic card set editor (bug 000051).
 2016-??-??
 v5.1
 Fork new branch for v5.1 build, integration, and test (bug 000055)
+
+Fixed problem with the card set editor producing unreadable non-Latin characters, since these characters were  output in Window's own character set, not UTF-8 (bug 000054).
+

@@ -14,10 +14,10 @@ import cardseteditor.CardSetEditorDialog;
  * This is the main class for the Asian Flash Card program. It contains the main () routine and all global
  * objects used by the program.
  * @author David E. Reese
- * @version	5.0
+ * @version	5.1
  *
  */
-//Copyright 2013-2015 David E. Reese
+//Copyright 2013-2016 David E. Reese
 //
 //This file is part of AsianFlashCard.
 //
@@ -60,6 +60,8 @@ import cardseteditor.CardSetEditorDialog;
 //	20151211	DEReese				Change default font sizes to 48, based on font size availability (bug 000051).
 //	20151214	DEReese				Spawned a thread to determine the available fonts. This can take a long
 //									time, so it is run in the background (bug 000051).
+//	20160104	DEReese				Added call to System.setProperty () to set the default "file.encoding"
+//									property to the value contained in the userParameterData (bug 000054).
 //
 public class AsianFlash {
 	
@@ -247,6 +249,10 @@ public class AsianFlash {
 		// Initialize user parameters.
 		
 		userParameterData = new UserParameters ();
+		
+		// Set the default output encoding.
+		
+		System.setProperty ("file.encoding", AsianFlash.userParameterData.getOutputEncoding());
 		
 		// Create the main frame.
 		

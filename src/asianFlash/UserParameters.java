@@ -9,10 +9,10 @@ import java.awt.Color;
  * This class is used to encapsulate various parameters (font size, directories, etc.) that will
  * be editable by the user and / or stored in user configuration files.
  * @author David E. Reese
- * @version	4.1
+ * @version	5.1
  */
 
-//Copyright 2013-2015 David E. Reese
+//Copyright 2013-2016 David E. Reese
 //
 //This file is part of AsianFlashCard.
 //
@@ -46,6 +46,8 @@ import java.awt.Color;
 //	20141215	DEReese					Added scratchPadBackgroundColor, scratchPadPenColor, scratchPadPenThickness,
 //										and routines to set and get them (bug 000043).
 //	20151127	DEReese					Added GPL information (bug 000047).
+//	20160104	DEReese					Added outputCharset, outputEncoding, getOutputCharset (), and
+//										getOutputEncoding ().
 //
 
 public class UserParameters {
@@ -107,6 +109,16 @@ public class UserParameters {
 	private int scratchPadPenThickness;
 	
 	/**
+	 * Character set used for editor output.
+	 */
+	private String outputCharset = "UTF-8";
+	
+	/**
+	 * Encoding used for all file operations.
+	 */
+	private String outputEncoding = "UTF-8";
+	
+	/**
 	 * Default constructor. This constructor sets the user parameters to their default values.
 	 */
 	public UserParameters ()
@@ -141,6 +153,8 @@ public class UserParameters {
 		scratchPadBackgroundColor = Color.white;
 		scratchPadPenColor = Color.black;
 		scratchPadPenThickness = 5;
+		outputCharset = "UTF-8";
+		outputEncoding = "UTF-8";
 	}
 	
 	/**
@@ -452,5 +466,23 @@ public class UserParameters {
 	{
 		if (newThickness >= 1)
 			scratchPadPenThickness = newThickness;
+	}
+	
+	/**
+	 * This method returns the character set to be used when the card set editor outputs data.
+	 * @return	String containing the name of the character set.
+	 */
+	public String getOutputCharset ()
+	{
+		return outputCharset;
+	}
+	
+	/**
+	 * This method returns the encoding to be used when the card set editor outputs data.
+	 * @return	String containing the name of the encoding.
+	 */
+	public String getOutputEncoding ()
+	{
+		return outputEncoding;
 	}
 }
