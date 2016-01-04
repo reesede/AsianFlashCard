@@ -69,3 +69,7 @@ Fixed "Append" command not working (bug 000050).
 Converted scratch pad dialog from JDialog to JFrame and added scroll bars (bug 000053).
 
 Added basic card set editor (bug 000051).
+
+2016-??-??
+v5.1
+Fork new branch for v5.1 build, integration, and test (bug 000055)
