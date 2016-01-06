@@ -33,11 +33,11 @@ import asianFlash.AsianFlash;
  * This class contains the panel to display and edit a side of a card.
  * @author David E. Reese
  * @version 5.0
- * @since	5.0
+ * @since	5.1
  *
  */
 
-//Copyright 2015 David E. Reese
+//Copyright 2016 David E. Reese
 //
 //This file is part of AsianFlashCard.
 //
@@ -57,6 +57,7 @@ import asianFlash.AsianFlash;
 
 // History:
 //	20151208	DEReese				Creation (bug 000051).
+//	20160104	DEReese				Set theTextPane content type to "text/plain" (bug 000054).
 //
 
 public class CardEditorCardSidePanel extends JPanel implements ActionListener, DocumentListener, PropertyChangeListener 
@@ -283,6 +284,7 @@ public class CardEditorCardSidePanel extends JPanel implements ActionListener, D
 		theTextPane.setCaretPosition(0);
 		theTextPane.setEditable(true);
 		theTextPane.setEnabled(true);
+		theTextPane.setContentType("text/plain");
 		theTextPane.setBorder(BorderFactory.createLineBorder(Color.BLACK, 2));
 		theTextPane.setFont(AsianFlash.theCardSetEditor.getFontForSide(cardSide));
 		

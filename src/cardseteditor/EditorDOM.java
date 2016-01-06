@@ -5,6 +5,7 @@ package cardseteditor;
 
 import java.io.PrintWriter;
 import java.io.StringWriter;
+import java.nio.charset.Charset;
 
 import javax.xml.parsers.*;
 import javax.xml.transform.*;
@@ -53,7 +54,7 @@ import asianFlash.AsianFlash;
 
 public class EditorDOM 
 {	
-	private String theCharset;
+	private Charset theCharset;
 	/**
 	 * Default constructor.
 	 */
@@ -71,11 +72,11 @@ public class EditorDOM
 	{
 		// Get the Charset to use.
 		
-		theCharset = AsianFlash.userParameterData.getOutputCharset();
+		theCharset = Charset.forName (AsianFlash.userParameterData.getOutputCharset());
 
 		// Create a new file.
 		
-		PrintWriter	outputFile = new PrintWriter (theFileName, theCharset);
+		PrintWriter	outputFile = new PrintWriter (theFileName, AsianFlash.userParameterData.getOutputCharset());
 		
 		// Print the card set.
 		
