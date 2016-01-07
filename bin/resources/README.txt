@@ -3,6 +3,7 @@ This is the README.txt file for the AsianFlashCard program.
 
 1. TABLE OF CONTENTS
 ====================
+
 1.	TABLE OF CONTENTS
 2.	PROGRAM INFORMATION
 3.	LICENSE
@@ -64,6 +65,7 @@ The AsianFlashCard program requires Java runtime environment JRE-1.7 or later.
 
 6. INSTALLATION
 ===============
+
 If the program came in a tar file, untar the tarball in any convenient directory.
 After installation, you can create flashcard (.alfc) files with the built-in card
 set editor tool, or use a text editor that creates flat text files (however, see 
@@ -88,6 +90,7 @@ section below).
 		
 8. NAVIGATION
 =============
+
 While running a test, buttons provide navigation between each side of the
 flash card and to the next card. In addition buttons allow the user to mark
 each side correct (if incorrect) or incorrect (if correct already).
