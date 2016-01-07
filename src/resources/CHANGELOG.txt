@@ -70,7 +70,7 @@ Converted scratch pad dialog from JDialog to JFrame and added scroll bars (bug 0
 
 Added basic card set editor (bug 000051).
 
-2016-??-??
+2016-01-07
 v5.1
 Fork new branch for v5.1 build, integration, and test (bug 000055)
 
