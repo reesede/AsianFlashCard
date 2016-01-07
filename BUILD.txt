@@ -11,11 +11,13 @@ To build on Linux:
 	> ant -f jarbuild.xml
 	> ant -f javadoc.xml
 
-The application should be named AsianFlashCard.jar.
+The application should be named AFC.jar.
 
-To run the application, either doubleclick it or run from the command line:
+To run the application on Linux, either doubleclick AsianFlashCard.sh or run from the command line:
 
-	> java -jar AsianFlashCard.jar
+	> ./AsianFlashCard.sh
+
+To run the application on Windows, doubleclick AsianFlashCard.bat.
 
 Have fun!
 

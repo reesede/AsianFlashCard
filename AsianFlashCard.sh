@@ -8,4 +8,4 @@
 INSTALL_DIR=$(cd "$(dirname "$0")"; pwd)
 
 # Launch VASSSAL
-java -Dfile.encoding=UTF-8 -jar $INSTALL_DIR/AsianFlashCard.jar
+java -Dfile.encoding=UTF-8 -jar $INSTALL_DIR/AFC.jar

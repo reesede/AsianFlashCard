@@ -76,3 +76,6 @@ Fork new branch for v5.1 build, integration, and test (bug 000055)
 
 Fixed problem with the card set editor producing unreadable non-Latin characters, since these characters were  output in Window's own character set, not UTF-8 (bug 000054).
 
+NOTE: from v5.1, the Jar file now is named AFC.jar, and the program should be invoked using the AsianFlashCard.sh and AsianFlashCard.bat scripts (bug 000054).
+
+

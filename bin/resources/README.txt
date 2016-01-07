@@ -14,6 +14,7 @@ This is the README.txt file for the AsianFlashCard program.
 9.	MENU ITEMS
 10.	FLASHCARD FILE FORMAT
 11.	RENDERING PROBLEMS
+12.	KNOWN ISSUES
 
 
 2. PROGRAM INFORMATION
@@ -22,6 +23,7 @@ This is the README.txt file for the AsianFlashCard program.
 AsianFlashCard.jar
 Version 5.1
 Copyright 2012-2016, David E. Reese
+
 
 3. LICENSE
 ==========
@@ -57,25 +59,31 @@ three sides to be displayed.
 
 5. REQUIREMENTS
 ===============
-The AsianFlashCard program requires Java runtime environment JRE-1.6 or later.
+The AsianFlashCard program requires Java runtime environment JRE-1.7 or later.
 
 
 6. INSTALLATION
 ===============
 If the program came in a tar file, untar the tarball in any convenient directory.
-After installation, you can create flashcard (.alfc) files with a text editor that
-creates flat text files.
+After installation, you can create flashcard (.alfc) files with the built-in card
+set editor tool, or use a text editor that creates flat text files (however, see 
+"Character Encoding" in KNOWN ISSUES, below).
 
 
 7. PROGRAM INVOCATION
 =====================
+
 Windows:
-	Double-click the AsianFlashCard.jar file to launch.
+	Double-click the AsianFlashCard.bat file to launch.
 
 Linux:
 	Run using the following command:
 
-		java -jar AsianFlashCard.jar
+		> ./AsianFlashCard.sh
+		
+It is not recommended to invoke the Jar file directly, due to character
+encoding issues on Windows (see "Character Encoding" in the KNOWN ISSUES
+section below).
 		
 		
 8. NAVIGATION
@@ -201,12 +209,15 @@ Help -> About
 
 
 10. FLASHCARD FILE FORMAT
-========================
+=========================
 
 The card files, by default, have an extension of .alfc, and the load card set
 dialog will look for such files.
 
-The file is plain text, but is formatted in XML. As an example:
+The file is plain text, but is formatted in XML. THE FILE MUST USE THE UTF-8
+CHARACTER SET. 
+
+Below is an example flash card file:
 
 <FlashCardSet>
 <SideInformation>
@@ -259,12 +270,34 @@ Finally, the sides will be surrounded with <CENTER></CENTER> before being displa
 the cards will be centered in the card window. The user can embed other justifications within
 the side HTML, if desired.
 
-11. RENDERING PROBLEMS
-=====================
 
-Some languages may not render properly on a "standard" software installation
-(i.e., Tibetan does not work correctly on a standard Windows installation, 
-even when there was a Tibetan font present). Solving these problems is beyond
-the scope of this help file; if a language does not render correctly, it is
-suggested to do a Google search for solutions.
+11. RENDERING PROBLEMS
+======================
+
+Some languages may not render properly on a "standard" software installation (i.e., Tibetan does
+not work correctly on a standard Windows installation, even when there was a Tibetan font present).
+Solving these problems is beyond the scope of this help file; if a language does not render
+correctly, it is suggested to do a Google search for solutions.
+
+Also, see the "Character Encoding" section of KNOWN ISSUES, below.
+
+
+12. KNOWN ISSUES
+================
+
+Character Encoding
+------------------
+In order to display non-Latin text correctly, any flash card (.alfc) files must be saved in
+the UTF-8 character encoding. This usually is not a problem on Linux, but can be a problem
+on Windows, since Windows normally saves text files in a variety of formats, depending on
+the region of the world (i.e., CP1250 in the USA, CP1252 in Europe, etc.). If the flash card
+files are edited with a text editor, it is imperative that that editor save the files in
+UTF-8.
+
+For similar reasons, the program should be invoked by executing the AsianFlashCard.sh (on Linux)
+or AsianFlashCard.bat (on Windows) scripts, rather than executing the AFC.jar file directly. The
+scripts invoke Java with the -Dfile.encoding=UTF-8 option. This ensures that any files created
+or modified using the built-in card set editor will save the card files in UTF-8 character set.
+Note that this primarily is a problem on Windows. Linux usually uses UTF-8 by default, so the cards
+normally will be saved in UTF-8 if the editor is run on Linux.
 
